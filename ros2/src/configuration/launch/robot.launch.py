@@ -26,10 +26,16 @@ def generate_launch_description():
             'pose_y', default_value='0.0'
         ),
         DeclareLaunchArgument(
-            'model_name', default_value='burger'
+            'map', default_value='/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml'
         ),
         DeclareLaunchArgument(
-            'urdf_path', default_value=[FindPackageShare('turtlebot3_gazebo'), '/models/turtlebot3_', LaunchConfiguration("model_name"), '/model.sdf']
+            'model_name', default_value='waffle'
+            # 'model_name', default_value='burger'
+        ),
+        DeclareLaunchArgument(
+            # TEMPORARY - Looks like we will need to provide our own model files with Nav2's /tf namespace fix. TODO
+            'urdf_path', default_value=[FindPackageShare('nav2_bringup'), '/worlds/', LaunchConfiguration("model_name"), '.model']
+            # 'urdf_path', default_value=[FindPackageShare('turtlebot3_gazebo'), '/models/turtlebot3_', LaunchConfiguration("model_name"), '/model.sdf']
         ),
         DeclareLaunchArgument(
             'use_rviz', default_value='false'
@@ -49,7 +55,8 @@ def generate_launch_description():
                 'use_namespace': 'True',
                 'use_composition': 'False',
                 'use_sim_time': 'True',
-                'map': '/home/anthony/dev/aamas2023/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
+                'map': LaunchConfiguration("map"),
+                # 'map': '/home/anthony/dev/aamas2023/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
                 # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
                 # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.yaml',
             }.items()
@@ -74,14 +81,14 @@ def generate_launch_description():
         GroupAction(
             actions=[
                 PushRosNamespace(LaunchConfiguration("name")),
-                SetRemap(dst='/tf', src=['/agent', LaunchConfiguration("id"), '/tf']),
-                SetRemap(dst='/tf_static', src=['/agent', LaunchConfiguration("id"), '/tf_static']),
+                SetRemap(src='/tf', dst=['/agent', LaunchConfiguration("id"), '/tf']),
+                SetRemap(src='/tf_static', dst=['/agent', LaunchConfiguration("id"), '/tf_static']),
                 # This node calls a Gazebo service to spawn the robot.
                 Node(
                     package='gazebo_ros',
                     executable='spawn_entity.py',
                     arguments=[
-                        '-entity', 'burger',
+                        '-entity', LaunchConfiguration("model_name"),
                         '-file', LaunchConfiguration("urdf_path"),
                         '-robot_namespace', LaunchConfiguration("name"),
                         '-x', LaunchConfiguration("pose_x"),
