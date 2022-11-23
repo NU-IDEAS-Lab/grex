@@ -106,7 +106,7 @@ def generate_launch_description():
                     package='gazebo_ros',
                     executable='spawn_entity.py',
                     arguments=[
-                        '-entity', LaunchConfiguration("model_name"),
+                        '-entity', LaunchConfiguration("name"),
                         '-file', LaunchConfiguration("urdf_path"),
                         '-robot_namespace', LaunchConfiguration("name"),
                         '-x', LaunchConfiguration("pose_x"),
