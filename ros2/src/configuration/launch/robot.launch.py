@@ -42,24 +42,37 @@ def generate_launch_description():
         ),
 
         # Start the navigation stack.
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('nav2_bringup'),
-                    'launch',
-                    'bringup_launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'namespace': LaunchConfiguration("name"),
-                'use_namespace': 'True',
-                'use_composition': 'False',
-                'use_sim_time': 'True',
-                'map': LaunchConfiguration("map"),
-                # 'map': '/home/anthony/dev/aamas2023/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
-                # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
-                # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.yaml',
-            }.items()
+        GroupAction(
+            actions=[
+                # Manually remap the scan topic.
+                SetRemap(src='/scan', dst=['/agent', LaunchConfiguration("id"), '/scan']),
+
+                # Run the navigation stack.
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        PathJoinSubstitution([
+                            FindPackageShare('nav2_bringup'),
+                            'launch',
+                            'bringup_launch.py'
+                        ])
+                    ]),
+                    launch_arguments={
+                        'namespace': LaunchConfiguration("name"),
+                        'use_namespace': 'True',
+                        'use_composition': 'False',
+                        'use_sim_time': 'True',
+                        'map': LaunchConfiguration("map"),
+                        'params_file': PathJoinSubstitution([
+                            FindPackageShare('configuration'),
+                            'config',
+                            'nav2_params.yaml'
+                        ]),
+                        # 'map': '/home/anthony/dev/aamas2023/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
+                        # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
+                        # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.yaml',
+                    }.items(),
+                ),
+            ]
         ),
 
         # Start RViz.
@@ -74,6 +87,11 @@ def generate_launch_description():
             launch_arguments={
                 'namespace': LaunchConfiguration("name"),
                 'use_namespace': 'True',
+                'rviz_config': PathJoinSubstitution([
+                    FindPackageShare('nav2_bringup'),
+                    'rviz',
+                    'nav2_namespaced_view.rviz'
+                ]),
             }.items(),
             condition = IfCondition(LaunchConfiguration("use_rviz")),
         ),
@@ -96,16 +114,6 @@ def generate_launch_description():
                         '-z', '0.01'
                     ],
                 ),
-                # IncludeLaunchDescription(
-                #     PythonLaunchDescriptionSource([
-                #         PathJoinSubstitution([
-                #             FindPackageShare('turtlebot3_gazebo'),
-                #             'launch',
-                #             'spawn_turtlebot3.launch.py'
-                #         ])
-                #     ]),
-                #     # launch_arguments={}.items()
-                # ),
 
                 # Run the robot state publisher.
                 IncludeLaunchDescription(
@@ -120,58 +128,4 @@ def generate_launch_description():
                 ),
             ]
         ),
-
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([
-        #         PathJoinSubstitution([
-        #             FindPackageShare('nav2_bringup'),
-        #             'launch',
-        #             'localization_launch.py'
-        #         ])
-        #     ]),
-        #     launch_arguments={
-        #         # 'namespace': LaunchConfiguration("name"),
-        #         'map': '/home/anthony/dev/aamas2023/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
-        #         # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml',
-        #         # 'map': '/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.yaml',
-        #     }.items()
-        # ),
-
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([
-        #         PathJoinSubstitution([
-        #             FindPackageShare('nav2_bringup'),
-        #             'launch',
-        #             'navigation_launch.py'
-        #         ])
-        #     ]),
-        #     launch_arguments={
-        #         'namespace': LaunchConfiguration("name"),
-        #     }.items()
-        # ),
-
-        # Node(
-        #     package='nav2_map_server',
-        #     executable='map_server',
-        #     name='map_server',
-        #     output='screen',
-        #     # respawn=use_respawn,
-        #     # respawn_delay=2.0,
-        #     parameters=[
-        #         {"yaml_filename": "/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml"},
-        #     ],
-        #     # arguments=['--ros-args', '--log-level', log_level],
-        #     # remappings=remappings
-        # ),
-        # Node(
-        #     package='nav2_amcl',
-        #     executable='amcl',
-        #     name='amcl',
-        #     output='screen',
-        #     # respawn=use_respawn,
-        #     # respawn_delay=2.0,
-        #     # parameters=[configured_params],
-        #     # arguments=['--ros-args', '--log-level', log_level],
-        #     # remappings=remappings
-        # ),
     ])
