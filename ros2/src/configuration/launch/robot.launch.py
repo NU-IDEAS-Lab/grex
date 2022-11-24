@@ -26,7 +26,10 @@ def generate_launch_description():
             'pose_y', default_value='0.0'
         ),
         DeclareLaunchArgument(
-            'map', default_value='/home/anthony/dev/northwestern/aamas_environment/src/patrolling_sim/maps/DIAG_labs/DIAG_labs.yaml'
+            'map', default_value='cumberland'
+        ),
+        DeclareLaunchArgument(
+            'map_file', default_value=[FindPackageShare("configuration"), "/models/maps/", LaunchConfiguration("map"), "/", LaunchConfiguration("map"), ".yaml"]
         ),
         DeclareLaunchArgument(
             'model_name', default_value='waffle'
@@ -61,7 +64,7 @@ def generate_launch_description():
                         'use_namespace': 'True',
                         'use_composition': 'False',
                         'use_sim_time': 'True',
-                        'map': LaunchConfiguration("map"),
+                        'map': LaunchConfiguration("map_file"),
                         'params_file': PathJoinSubstitution([
                             FindPackageShare('configuration'),
                             'config',

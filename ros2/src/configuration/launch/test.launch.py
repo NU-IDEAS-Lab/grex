@@ -20,43 +20,37 @@ def generate_launch_description():
 
     AGENT_COUNT = 1
 
-    # Get the gazebo world model.
-    # TODO: Replace with generated versions of the mapserver maps.
-    world = os.path.join(
-        get_package_share_directory('turtlebot3_gazebo'),
-        'worlds',
-        'turtlebot3_house.world'
-        # 'empty_world.world'
-    )
-
     agents = []
     for agent in range(AGENT_COUNT):
-        agents.append(GroupAction(
-            actions=[
-                # THE NAV STACK MIGHT ACTUALLY NOT WANT THIS NAMESPACE SET
-                # PushRosNamespace('agent' + str(agent)),
-                # SetRemap(dst='/tf', src='/agent' + str(agent) + '/tf'),
-                # SetRemap(dst='/tf_static', src='/agent' + str(agent) + '/tf_static'),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution([
-                            FindPackageShare('configuration'),
-                            'launch',
-                            'robot.launch.py'
-                        ])
-                    ]),
-                    launch_arguments={
-                        "id": str(agent),
-                        "use_rviz": LaunchConfiguration("use_rviz"),
-                    }.items()
-                )
-            ]
-        ))
+        agents.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    PathJoinSubstitution([
+                        FindPackageShare('configuration'),
+                        'launch',
+                        'robot.launch.py'
+                    ])
+                ]),
+                launch_arguments={
+                    "id": str(agent),
+                    "use_rviz": LaunchConfiguration("use_rviz"),
+                    "map": LaunchConfiguration("map"),
+                    "pose_x": "35.0",
+                    "pose_y": "22.0",
+                }.items()
+            )
+        )
 
     return LaunchDescription([
         # Arguments.
         DeclareLaunchArgument(
             'use_rviz', default_value='false'
+        ),
+        DeclareLaunchArgument(
+            'map', default_value='cumberland'
+        ),
+        DeclareLaunchArgument(
+            'gazebo_world_file', default_value=[FindPackageShare("configuration"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
 
         # Agent nodes.
@@ -72,7 +66,7 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'world': world
+                'world': LaunchConfiguration("gazebo_world_file"),
             }.items()
         ),
 
