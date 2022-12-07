@@ -1,10 +1,10 @@
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch_ros.actions import PushRosNamespace, SetRemap
 
 from launch.actions import IncludeLaunchDescription
-from launch.actions import GroupAction
+from launch.actions import GroupAction, OpaqueFunction
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, LogInfo, EmitEvent
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessExit
@@ -16,13 +16,15 @@ from statistics import mean
 
 # import launch
 
-def generate_launch_description():
+def generate_agents(context: LaunchContext, agent_count_subst):
+    ''' Generates the list of agent launch descriptions. '''
 
-    AGENT_COUNT = 1
-
+    # Convert agent count to integer.
+    agent_count = int(context.perform_substitution(agent_count_subst))
     agents = []
-    for agent in range(AGENT_COUNT):
-        agents.append(
+    for agent in range(agent_count):
+        agents += [
+            LogInfo(msg=TextSubstitution(text="Creating agent " + str(agent))),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
                     PathJoinSubstitution([
@@ -33,16 +35,26 @@ def generate_launch_description():
                 ]),
                 launch_arguments={
                     "id": str(agent),
+                    "name": "agent" + str(agent),
                     "use_rviz": LaunchConfiguration("use_rviz"),
                     "map": LaunchConfiguration("map"),
+                    "pose_x": str(35.0 + agent),
                     "pose_x": "35.0",
                     "pose_y": "22.0",
                 }.items()
             )
-        )
+        ]
+    
+    return agents
+
+def generate_launch_description():
+    ''' Generates the overall launch description. '''
 
     return LaunchDescription([
         # Arguments.
+        DeclareLaunchArgument(
+            'agent_count', default_value='1'
+        ),
         DeclareLaunchArgument(
             'use_rviz', default_value='false'
         ),
@@ -52,9 +64,6 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'gazebo_world_file', default_value=[FindPackageShare("configuration"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
-
-        # Agent nodes.
-        *agents,
 
         # Gazebo simulation server.
         IncludeLaunchDescription(
@@ -79,6 +88,12 @@ def generate_launch_description():
                     'gzclient.launch.py'
                 ])
             ])
+        ),
+
+        # Agent nodes.
+        OpaqueFunction(
+            function=generate_agents,
+            args=[LaunchConfiguration('agent_count')]
         ),
 
         # Event handlers.
