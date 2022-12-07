@@ -29,7 +29,7 @@ def generate_launch_description():
             'map', default_value='cumberland'
         ),
         DeclareLaunchArgument(
-            'map_file', default_value=[FindPackageShare("configuration"), "/models/maps/", LaunchConfiguration("map"), "/", LaunchConfiguration("map"), ".yaml"]
+            'map_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/", LaunchConfiguration("map"), ".yaml"]
         ),
         DeclareLaunchArgument(
             'model_name', default_value='waffle'
@@ -66,7 +66,7 @@ def generate_launch_description():
                         'use_sim_time': 'True',
                         'map': LaunchConfiguration("map_file"),
                         'params_file': PathJoinSubstitution([
-                            FindPackageShare('configuration'),
+                            FindPackageShare('simulation_base'),
                             'config',
                             'nav2_params.yaml'
                         ]),

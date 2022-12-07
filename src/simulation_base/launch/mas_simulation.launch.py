@@ -28,7 +28,7 @@ def generate_agents(context: LaunchContext, agent_count_subst):
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
                     PathJoinSubstitution([
-                        FindPackageShare('configuration'),
+                        FindPackageShare('simulation_base'),
                         'launch',
                         'robot.launch.py'
                     ])
@@ -62,7 +62,7 @@ def generate_launch_description():
             'map', default_value='cumberland'
         ),
         DeclareLaunchArgument(
-            'gazebo_world_file', default_value=[FindPackageShare("configuration"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
+            'gazebo_world_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
 
         # Gazebo simulation server.
