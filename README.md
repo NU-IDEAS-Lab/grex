@@ -67,3 +67,20 @@ To operate the simulator, perform the following steps:
     ```
 
     * *Note: To view available launch arguments, add a* `-s` *flag to the end of the command.*
+
+# Development Notes
+Source gazebo before running:
+
+    ```
+    . /usr/share/gazebo/setup.sh
+    ```
+
+Convert maps using:
+    ```
+    python3 map2gazebo_offline.py --map_dir ~/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.pgm --export_dir ~/dev/northwestern/
+    ```
+
+RViz fix:
+    ```
+    LIBGL_ALWAYS_SOFTWARE=1 ros2 launch configuration test.launch.py use_rviz:=true
+    ```
