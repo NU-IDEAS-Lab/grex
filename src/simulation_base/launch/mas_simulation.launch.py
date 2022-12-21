@@ -30,7 +30,7 @@ def generate_agents(context: LaunchContext, agent_count_subst):
                     PathJoinSubstitution([
                         FindPackageShare('simulation_base'),
                         'launch',
-                        'robot.launch.py'
+                        'robot_standalone.launch.py'
                     ])
                 ]),
                 launch_arguments={

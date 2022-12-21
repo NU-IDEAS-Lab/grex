@@ -9,8 +9,34 @@ from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchC
 from launch.actions import GroupAction
 from launch_ros.actions import PushRosNamespace, SetRemap, SetParameter
 
+from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
+    use_respawn = False
+    remappings = [('/tf', 'tf'),
+                  ('/tf_static', 'tf_static')]
+    use_sim_time = True
+    log_level = "info"
+    autostart = True
+    namespace = LaunchConfiguration('name')
+    params_file = PathJoinSubstitution([
+        FindPackageShare('simulation_base'),
+        'config',
+        'nav2_params.yaml'
+    ])
+    lifecycle_nodes = ['map_server', 'amcl']
+
+    param_substitutions = {
+        'use_sim_time': str(use_sim_time),
+        'yaml_filename': LaunchConfiguration("map_file")}
+
+    configured_params = RewrittenYaml(
+        source_file=params_file,
+        root_key=namespace,
+        param_rewrites=param_substitutions,
+        convert_types=True
+    )
+
     return LaunchDescription([
         # Handle parameters.
         DeclareLaunchArgument(
@@ -63,27 +89,59 @@ def generate_launch_description():
                 ),
 
                 # Run the navigation stack.
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution([
-                            FindPackageShare('nav2_bringup'),
-                            'launch',
-                            'bringup_launch.py'
-                        ])
-                    ]),
-                    launch_arguments={
-                        'namespace': LaunchConfiguration("name"),
-                        'use_namespace': 'True',
-                        'use_composition': 'False',
-                        'use_sim_time': 'True',
-                        'map': LaunchConfiguration("map_file"),
-                        'params_file': PathJoinSubstitution([
-                            FindPackageShare('simulation_base'),
-                            'config',
-                            'nav2_params.yaml'
-                        ]),
-                    }.items(),
+                Node(
+                    package='nav2_map_server',
+                    executable='map_server',
+                    name='map_server',
+                    output='screen',
+                    respawn=use_respawn,
+                    respawn_delay=2.0,
+                    parameters=[configured_params],
+                    arguments=['--ros-args', '--log-level', log_level],
+                    remappings=remappings
                 ),
+                Node(
+                    package='nav2_amcl',
+                    executable='amcl',
+                    name='amcl',
+                    output='screen',
+                    respawn=use_respawn,
+                    respawn_delay=2.0,
+                    parameters=[configured_params],
+                    arguments=['--ros-args', '--log-level', log_level],
+                    remappings=remappings
+                ),
+                Node(
+                    package='nav2_lifecycle_manager',
+                    executable='lifecycle_manager',
+                    name='lifecycle_manager_localization',
+                    output='screen',
+                    arguments=['--ros-args', '--log-level', log_level],
+                    parameters=[{'use_sim_time': use_sim_time},
+                                {'autostart': autostart},
+                                {'node_names': lifecycle_nodes}]
+                ),
+                # IncludeLaunchDescription(
+                #     PythonLaunchDescriptionSource([
+                #         PathJoinSubstitution([
+                #             FindPackageShare('nav2_bringup'),
+                #             'launch',
+                #             'bringup_launch.py'
+                #         ])
+                #     ]),
+                #     launch_arguments={
+                #         'namespace': LaunchConfiguration("name"),
+                #         'use_namespace': 'True',
+                #         'use_composition': 'False',
+                #         'use_sim_time': 'True',
+                #         'map': LaunchConfiguration("map_file"),
+                #         'params_file': PathJoinSubstitution([
+                #             FindPackageShare('simulation_base'),
+                #             'config',
+                #             'nav2_params.yaml'
+                #         ]),
+                #     }.items(),
+                # ),
             ]
         ),
 
