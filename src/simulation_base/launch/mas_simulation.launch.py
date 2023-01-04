@@ -6,6 +6,7 @@ from launch_ros.actions import PushRosNamespace, SetRemap
 from launch.actions import IncludeLaunchDescription
 from launch.actions import GroupAction, OpaqueFunction
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, LogInfo, EmitEvent
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
@@ -58,6 +59,9 @@ def generate_launch_description():
             'use_rviz', default_value='false'
         ),
         DeclareLaunchArgument(
+            'use_gzclient', default_value='true'
+        ),
+        DeclareLaunchArgument(
             'map', default_value='cumberland'
         ),
         DeclareLaunchArgument(
@@ -86,7 +90,8 @@ def generate_launch_description():
                     'launch',
                     'gzclient.launch.py'
                 ])
-            ])
+            ]),
+            condition = IfCondition(LaunchConfiguration("use_gzclient")),
         ),
 
         # Agent nodes.
