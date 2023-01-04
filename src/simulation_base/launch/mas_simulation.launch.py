@@ -30,7 +30,7 @@ def generate_agents(context: LaunchContext, agent_count_subst):
                     PathJoinSubstitution([
                         FindPackageShare('simulation_base'),
                         'launch',
-                        'robot_standalone.launch.py'
+                        'robot.launch.py'
                     ])
                 ]),
                 launch_arguments={
@@ -39,7 +39,6 @@ def generate_agents(context: LaunchContext, agent_count_subst):
                     "use_rviz": LaunchConfiguration("use_rviz"),
                     "map": LaunchConfiguration("map"),
                     "pose_x": str(35.0 + agent),
-                    "pose_x": "35.0",
                     "pose_y": "22.0",
                 }.items()
             )

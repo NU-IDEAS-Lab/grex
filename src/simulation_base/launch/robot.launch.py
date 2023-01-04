@@ -1,4 +1,4 @@
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch.actions import DeclareLaunchArgument
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
@@ -6,7 +6,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchConfiguration
-from launch.actions import GroupAction
+from launch.actions import GroupAction, OpaqueFunction
 from launch_ros.actions import PushRosNamespace, SetRemap, SetParameter
 
 
@@ -35,8 +35,7 @@ def generate_launch_description():
             'model_name', default_value='waffle'
         ),
         DeclareLaunchArgument(
-            # TEMPORARY - Looks like we will need to provide our own model files with Nav2's /tf namespace fix. TODO
-            'urdf_path', default_value=[FindPackageShare('nav2_bringup'), '/worlds/', LaunchConfiguration("model_name"), '.model']
+            'urdf_path', default_value=[FindPackageShare('simulation_base'), '/models/robots/', LaunchConfiguration("model_name"), '.model']
         ),
         DeclareLaunchArgument(
             'use_rviz', default_value='false'
@@ -48,27 +47,13 @@ def generate_launch_description():
                 # Manually remap the scan topic.
                 SetRemap(src='/scan', dst=['/agent', LaunchConfiguration("id"), '/scan']),
 
-                # Set miscellaneous parameters.
-                SetParameter(
-                    name="amcl/set_initial_pose",
-                    value=True
-                ),
-                SetParameter(
-                    name="amcl/initial_pose.x",
-                    value=LaunchConfiguration("pose_x")
-                ),
-                SetParameter(
-                    name="amcl/initial_pose.y",
-                    value=LaunchConfiguration("pose_y")
-                ),
-
                 # Run the navigation stack.
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
                         PathJoinSubstitution([
-                            FindPackageShare('nav2_bringup'),
+                            FindPackageShare('simulation_base'),
                             'launch',
-                            'bringup_launch.py'
+                            'robot_navigation2.launch.py'
                         ])
                     ]),
                     launch_arguments={
@@ -82,12 +67,14 @@ def generate_launch_description():
                             'config',
                             'nav2_params.yaml'
                         ]),
+                        'pose_x': LaunchConfiguration("pose_x"),
+                        'pose_y': LaunchConfiguration("pose_y"),
                     }.items(),
                 ),
             ]
         ),
 
-        # Start RViz.
+        # Start RViz if use_rviz=true.
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -108,6 +95,7 @@ def generate_launch_description():
             condition = IfCondition(LaunchConfiguration("use_rviz")),
         ),
 
+        # Instantiate the robot in Gazebo.
         GroupAction(
             actions=[
                 PushRosNamespace(LaunchConfiguration("name")),
@@ -130,16 +118,35 @@ def generate_launch_description():
                 ),
 
                 # Run the robot state publisher.
-                IncludeLaunchDescription(
-                    PathJoinSubstitution([
-                        FindPackageShare('turtlebot3_gazebo'),
-                        'launch',
-                        'robot_state_publisher.launch.py'
-                    ]),
-                    launch_arguments={
-                        'use_sim_time': 'True'
-                    }.items()
+                OpaqueFunction(
+                    function=createRsp,
+                    args=[LaunchConfiguration('urdf_path')]
                 ),
             ]
         ),
     ])
+
+def createRsp(context: LaunchContext, urdf_path_subst):
+    ''' Create the robot state publisher. '''
+    
+    urdf_path = str(context.perform_substitution(urdf_path_subst))
+    robotDesc = getUrdfData(urdf_path)
+
+    return [Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='screen',
+        parameters=[{
+            'use_sim_time': True,
+            'robot_description': robotDesc
+        }],
+    )]
+
+def getUrdfData(filepath):
+    ''' Gets URDF data from filepath and returns as string. '''
+
+    robot_desc = ""
+    with open(filepath, 'r') as infp:
+        robot_desc = infp.read()
+    return robot_desc
