@@ -4,7 +4,7 @@ from launch_ros.actions import Node
 from launch_ros.actions import PushRosNamespace, SetRemap
 
 from launch.actions import IncludeLaunchDescription
-from launch.actions import GroupAction, OpaqueFunction
+from launch.actions import GroupAction, OpaqueFunction, SetEnvironmentVariable
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, LogInfo, EmitEvent
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -69,17 +69,25 @@ def generate_launch_description():
         ),
 
         # Gazebo simulation server.
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('gazebo_ros'),
-                    'launch',
-                    'gzserver.launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'world': LaunchConfiguration("gazebo_world_file"),
-            }.items()
+        GroupAction(
+            actions=[
+                SetEnvironmentVariable(
+                    name="DISPLAY",
+                    value=":0"
+                ),
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        PathJoinSubstitution([
+                            FindPackageShare('gazebo_ros'),
+                            'launch',
+                            'gzserver.launch.py'
+                        ])
+                    ]),
+                    launch_arguments={
+                        'world': LaunchConfiguration("gazebo_world_file"),
+                    }.items()
+                ),
+            ]
         ),
 
         # Gazebo client (GUI).
