@@ -19,29 +19,67 @@ Once prerequisites are installed, perform the following:
 
  1) Use Git to download the simulation environment repository.
 
-    ```
+    ```bash
     git clone --recurse https://github.com/NU-IDEAS-Lab/mas_simulation.git
     ```
     
  2) Change to the `mas_simulation` folder:
 
-    ```
+    ```bash
     cd ./mas_simulation/
     ```
 
  3) Source the correct ROS 2 installation.
    
-    ```
+    ```bash
     source /opt/ros/humble/setup.bash
     ```
     
  4) Build the simulation environment using Colcon, the ROS 2 build system.
 
-    ```
+    ```bash
     colcon build
     ```
 
  5) Follow instructions below to run the simulation.
+
+
+# Docker Installation Instructions (Alternative Method)
+Installation via Docker may be performed as follows for use on systems where packages may not be installed.
+
+Follow the steps below:
+
+ 1) Install `rocker`:
+    ```bash
+    pip install rocker
+    ```
+
+ 2) Build the Docker image:
+    ```bash
+    nvidia-docker build . -t ros:mas-sim
+
+ 3) Launch a container using `rocker`:
+    ```bash
+    rocker --net=host --nvidia --x11 --user --home ros:mas-sim
+    ```
+
+ 4) Change to the `mas_simulation` folder:
+
+    ```bash
+    cd ~/mas_simulation/
+    ```
+
+ 5) Source the correct ROS 2 installation.
+   
+    ```bash
+    source /opt/ros/humble/setup.bash
+    ```
+    
+ 6) Build the simulation environment using Colcon, the ROS 2 build system.
+
+    ```bash
+    colcon build
+    ```
 
 
 # Operation Instructions
@@ -71,16 +109,16 @@ To operate the simulator, perform the following steps:
 # Development Notes
 Source gazebo before running:
 
-    ```
-    . /usr/share/gazebo/setup.sh
-    ```
+   ```bash
+   . /usr/share/gazebo/setup.sh
+   ```
 
 Convert maps using:
-    ```
-    python3 map2gazebo_offline.py --map_dir ~/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.pgm --export_dir ~/dev/northwestern/
-    ```
+   ```bash
+   python3 map2gazebo_offline.py --map_dir ~/dev/northwestern/aamas_environment/src/patrolling_sim/maps/cumberland/cumberland.pgm --export_dir ~/dev/northwestern/
+   ```
 
 RViz fix:
-    ```
-    LIBGL_ALWAYS_SOFTWARE=1 ros2 launch configuration test.launch.py use_rviz:=true
-    ```
+   ```bash
+   LIBGL_ALWAYS_SOFTWARE=1 ros2 launch configuration test.launch.py use_rviz:=true
+   ```
