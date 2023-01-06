@@ -56,6 +56,9 @@ def generate_launch_description():
             'agent_count', default_value='1'
         ),
         DeclareLaunchArgument(
+            'use_agents', default_value='true'
+        ),
+        DeclareLaunchArgument(
             'use_rviz', default_value='false'
         ),
         DeclareLaunchArgument(
@@ -105,7 +108,8 @@ def generate_launch_description():
         # Agent nodes.
         OpaqueFunction(
             function=generate_agents,
-            args=[LaunchConfiguration('agent_count')]
+            args=[LaunchConfiguration('agent_count')],
+            condition = IfCondition(LaunchConfiguration("use_agents"))
         ),
 
         # Event handlers.
