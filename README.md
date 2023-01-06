@@ -11,6 +11,12 @@ Installation is simple, but prerequisites must first be installed:
 
  * ROS 2: Follow the official instructions [here](https://docs.ros.org/en/humble/Installation.html) to install **ROS 2 Humble** to your system. Use the **desktop-full** variant, which includes the Gazebo simulator.
 
+   * Install the `Eclipse Cyclone DDS` middleware for ROS. We use this because the default middleware currently causes problems in our application.
+     ```bash
+     apt install ros-humble-rmw-cyclonedds-cpp
+     ```
+     The above will install Cyclone DDS for Ubuntu. Adapt as needed for your system.
+
  * Colcon: This is the ROS 2 build system, but doesn't seem to be installed automatically. Install using the official instructions, [here](https://colcon.readthedocs.io/en/released/user/installation.html).
 
  * *Optional for Windows*: Users may find it easier to install prerequisites and operate the simulator using the Windows Subsystem for Linux (WSL). Install WSL, and then use it to install the Ubuntu version of ROS 2.
@@ -91,11 +97,12 @@ To operate the simulator, perform the following steps:
     cd ./mas_simulation/
     ```
 
- 2) Source the installed packages, plus the Gazebo simulator.
+ 2) Source the installed packages, plus the Gazebo simulator, and set environment variables.
    
     ```
     source ./install/setup.bash
     source /usr/share/gazebo/setup.sh
+    export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
     ```
 
  3) Run the simulation:
@@ -122,3 +129,5 @@ RViz fix:
    ```bash
    LIBGL_ALWAYS_SOFTWARE=1 ros2 launch configuration test.launch.py use_rviz:=true
    ```
+
+Using the Docker method with Cyclone DDS on ideas2 server will currently result in gzserver crash because of https://github.com/eclipse-cyclonedds/cyclonedds/issues/479.
