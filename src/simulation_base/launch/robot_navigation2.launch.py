@@ -67,7 +67,7 @@ def generate_launch_description():
     param_substitutions = {
         'use_sim_time': use_sim_time,
         'yaml_filename': map_yaml_file,
-        'amcl.set_initial_pose': "True"}
+    }
 
     configured_params = RewrittenYaml(
         source_file=params_file,
