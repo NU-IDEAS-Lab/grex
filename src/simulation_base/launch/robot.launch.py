@@ -69,6 +69,7 @@ def generate_launch_description():
                         ]),
                         'pose_x': LaunchConfiguration("pose_x"),
                         'pose_y': LaunchConfiguration("pose_y"),
+                        'log_level': 'warn',
                     }.items(),
                 ),
             ]
