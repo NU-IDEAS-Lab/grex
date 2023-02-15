@@ -16,6 +16,12 @@ Installation is simple, but prerequisites must first be installed:
      apt install ros-humble-rmw-cyclonedds-cpp
      ```
      The above will install Cyclone DDS for Ubuntu. Adapt as needed for your system.
+     
+   * Install other ROS 2 packages.
+     ```bash
+     apt install ros-humble-turtlebot3* ros-humble-navigation2*
+     ```
+     Adapt as needed for your system.
 
  * Colcon: This is the ROS 2 build system, but doesn't seem to be installed automatically. Install using the official instructions, [here](https://colcon.readthedocs.io/en/released/user/installation.html).
 
