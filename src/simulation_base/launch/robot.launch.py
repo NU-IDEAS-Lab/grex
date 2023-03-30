@@ -114,7 +114,8 @@ def generate_launch_description():
                         '-timeout', '500.0',
                         '-x', LaunchConfiguration("pose_x"),
                         '-y', LaunchConfiguration("pose_y"),
-                        '-z', '0.01'
+                        '-z', '0.01',
+                        '-b'
                     ],
                 ),
 
