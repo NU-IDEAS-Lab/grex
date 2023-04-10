@@ -19,11 +19,9 @@ Installation is simple, but prerequisites must first be installed:
      
    * Install other ROS 2 packages.
      ```bash
-     apt install ros-humble-turtlebot3* ros-humble-navigation2*
+     apt install ros-dev-tools ros-humble-turtlebot3* ros-humble-navigation2*
      ```
      Adapt as needed for your system.
-
- * Colcon: This is the ROS 2 build system, but doesn't seem to be installed automatically. Install using the official instructions, [here](https://colcon.readthedocs.io/en/released/user/installation.html).
 
  * *Optional for Windows*: Users may find it easier to install prerequisites and operate the simulator using the Windows Subsystem for Linux (WSL). Install WSL, and then use it to install the Ubuntu version of ROS 2.
 
