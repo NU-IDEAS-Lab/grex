@@ -26,6 +26,7 @@ data_files=[
         ['resource/' + package_name]),
     ('share/' + package_name, ['package.xml']),
     ('share/' + package_name + '/launch', glob.glob("launch/*.py")),
+    ('share/' + package_name + '/launch/agent', glob.glob("launch/agent/*.py")),
     # ('share/' + package_name + '/config', glob.glob("config/*")),
 ]
 data_files += genDataFilesDirectoryRecursive("config")

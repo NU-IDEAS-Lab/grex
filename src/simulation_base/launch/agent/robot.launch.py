@@ -53,6 +53,7 @@ def generate_launch_description():
                         PathJoinSubstitution([
                             FindPackageShare('simulation_base'),
                             'launch',
+                            'agent',
                             'robot_navigation2.launch.py'
                         ])
                     ]),

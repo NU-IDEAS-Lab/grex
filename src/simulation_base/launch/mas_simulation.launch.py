@@ -6,16 +6,14 @@ from launch_ros.actions import PushRosNamespace, SetRemap
 from launch.actions import IncludeLaunchDescription
 from launch.actions import GroupAction, OpaqueFunction, SetEnvironmentVariable
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, LogInfo, EmitEvent
+from launch_ros_manager_py.actions import LaunchManagementServiceNode
 from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.event_handlers import OnProcessExit
-from launch.events import Shutdown
 from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
-import os
 from statistics import mean
 
-# import launch
+
 
 def generate_agents(context: LaunchContext, agent_count_subst):
     ''' Generates the list of agent launch descriptions. '''
@@ -31,6 +29,7 @@ def generate_agents(context: LaunchContext, agent_count_subst):
                     PathJoinSubstitution([
                         FindPackageShare('simulation_base'),
                         'launch',
+                        'agent',
                         'robot.launch.py'
                     ])
                 ]),
@@ -70,6 +69,9 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'gazebo_world_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
+
+        # Launch the management service node, which allows us to control the launch process via ROS service calls.
+        LaunchManagementServiceNode(),
 
         # Gazebo simulation server.
         GroupAction(
