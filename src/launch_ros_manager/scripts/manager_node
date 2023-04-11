@@ -8,7 +8,11 @@ class PlaceholderNode(Node):
 
 def main():
     rclpy.init()
-    node = PlaceholderNode("launch_manager")
+    node = PlaceholderNode(
+        "launch_manager",
+        start_parameter_services=False
+    )
+    
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
