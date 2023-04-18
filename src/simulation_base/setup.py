@@ -26,13 +26,11 @@ data_files=[
         ['resource/' + package_name]),
     ('share/' + package_name, ['package.xml']),
     ('share/' + package_name + '/launch', glob.glob("launch/*.py")),
-    ('share/' + package_name + '/launch/agent', glob.glob("launch/agent/*.py")),
-    # ('share/' + package_name + '/config', glob.glob("config/*")),
+    ('share/' + package_name + '/launch/agent', glob.glob("launch/agent/*.py"))
 ]
 data_files += genDataFilesDirectoryRecursive("config")
 data_files += genDataFilesDirectoryRecursive("models")
 
-# print("GOT DATA FILES:\n" + str(data_files))
 
 setup(
     name=package_name,
@@ -41,8 +39,8 @@ setup(
     data_files=data_files,
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='anthony',
+    maintainer='Anthony Goeckner',
     maintainer_email='anthony.goeckner@northwestern.edu',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='This package contains simulation configurations and launch files for the Grex framework.',
+    license='MIT',
 )
