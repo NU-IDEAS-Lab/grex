@@ -25,10 +25,9 @@ data_files=[
     ('share/ament_index/resource_index/packages',
         ['resource/' + package_name]),
     ('share/' + package_name, ['package.xml']),
-    ('share/' + package_name + '/launch', glob.glob("launch/*.py")),
-    ('share/' + package_name + '/launch/agent', glob.glob("launch/agent/*.py"))
 ]
 data_files += genDataFilesDirectoryRecursive("config")
+data_files += genDataFilesDirectoryRecursive("launch")
 data_files += genDataFilesDirectoryRecursive("models")
 
 

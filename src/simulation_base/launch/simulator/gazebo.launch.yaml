@@ -1,0 +1,28 @@
+launch:
+
+# Launch arguments.
+- arg:
+    name: "map"
+    default: "cumberland"
+- arg:
+    name: "gazebo_world_file"
+    default: "$(find-pkg-share simulation_base)/models/maps/$(var map)/model.sdf"
+- arg:
+    name: "headless"
+    default: "false"
+
+# Gazebo simulation server.
+- group:
+    - set_env:
+        name: "DISPLAY"
+        value: ":0"
+    - include:
+        file: "$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py"
+        arg:
+            - name: "world"
+              value: "$(var gazebo_world_file)"
+
+# Gazebo simulation client.
+- include:
+    file: "$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py"
+    unless: "$(var headless)"

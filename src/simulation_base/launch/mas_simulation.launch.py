@@ -8,7 +8,7 @@ from launch.actions import GroupAction, OpaqueFunction, SetEnvironmentVariable
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, LogInfo, EmitEvent
 from launch_ros_manager_py.actions import LaunchManagementServiceNode
 from launch.conditions import IfCondition, UnlessCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from statistics import mean
@@ -61,7 +61,7 @@ def generate_launch_description():
             'use_rviz', default_value='false'
         ),
         DeclareLaunchArgument(
-            'use_gzclient', default_value='true'
+            'headless', default_value='false'
         ),
         DeclareLaunchArgument(
             'map', default_value='cumberland'
@@ -69,42 +69,18 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'gazebo_world_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
+        DeclareLaunchArgument(
+            'simulator_launch_file', default_value=[FindPackageShare("simulation_base"), "/launch/simulator/gazebo.launch.yaml"]
+        ),
 
         # Launch the management service node, which allows us to control the launch process via ROS service calls.
         LaunchManagementServiceNode(),
 
-        # Gazebo simulation server.
-        GroupAction(
-            actions=[
-                SetEnvironmentVariable(
-                    name="DISPLAY",
-                    value=":0"
-                ),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution([
-                            FindPackageShare('gazebo_ros'),
-                            'launch',
-                            'gzserver.launch.py'
-                        ])
-                    ]),
-                    launch_arguments={
-                        'world': LaunchConfiguration("gazebo_world_file"),
-                    }.items()
-                ),
-            ]
-        ),
-
-        # Gazebo client (GUI).
+        # Launch the simulator.
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('gazebo_ros'),
-                    'launch',
-                    'gzclient.launch.py'
-                ])
-            ]),
-            condition = IfCondition(LaunchConfiguration("use_gzclient")),
+            AnyLaunchDescriptionSource(
+                LaunchConfiguration("simulator_launch_file")
+            )
         ),
 
         # Agent nodes.
