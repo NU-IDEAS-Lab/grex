@@ -4,7 +4,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch.actions import IncludeLaunchDescription
 from launch.conditions import IfCondition, UnlessCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchConfiguration
 from launch.actions import GroupAction, OpaqueFunction
 from launch_ros.actions import PushRosNamespace, SetRemap, SetParameter
@@ -17,13 +17,16 @@ def generate_launch_description():
             "id", default_value=TextSubstitution(text="0")
         ),
         DeclareLaunchArgument(
-            'name', default_value=["agent", LaunchConfiguration("id")]
+            "namespace", default_value=["agent", LaunchConfiguration("id")]
         ),
         DeclareLaunchArgument(
-            'pose_x', default_value='0.0'
+            "initial_pos_x", default_value='0.0'
         ),
         DeclareLaunchArgument(
-            'pose_y', default_value='0.0'
+            "initial_pos_y", default_value='0.0'
+        ),
+        DeclareLaunchArgument(
+            "initial_pos_z", default_value='0.0'
         ),
         DeclareLaunchArgument(
             'map', default_value='cumberland'
@@ -40,6 +43,11 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_rviz', default_value='false'
         ),
+        DeclareLaunchArgument(
+            'simulator_agent_integration_launch_file',
+            default_value=[FindPackageShare("simulation_base"), "/launch/simulator/gazebo/agent.launch.yaml"]
+        ),
+
 
         # Start the navigation stack.
         GroupAction(
@@ -58,7 +66,7 @@ def generate_launch_description():
                         ])
                     ]),
                     launch_arguments={
-                        'namespace': LaunchConfiguration("name"),
+                        'namespace': LaunchConfiguration("namespace"),
                         'use_namespace': 'True',
                         'use_composition': 'False',
                         'use_sim_time': 'True',
@@ -68,8 +76,8 @@ def generate_launch_description():
                             'config',
                             'nav2_params.yaml'
                         ]),
-                        'pose_x': LaunchConfiguration("pose_x"),
-                        'pose_y': LaunchConfiguration("pose_y"),
+                        'pose_x': LaunchConfiguration("initial_pos_x"),
+                        'pose_y': LaunchConfiguration("initial_pos_y"),
                         'log_level': 'warn',
                     }.items(),
                 ),
@@ -86,7 +94,7 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'namespace': LaunchConfiguration("name"),
+                'namespace': LaunchConfiguration("namespace"),
                 'use_namespace': 'True',
                 'rviz_config': PathJoinSubstitution([
                     FindPackageShare('nav2_bringup'),
@@ -97,35 +105,19 @@ def generate_launch_description():
             condition = IfCondition(LaunchConfiguration("use_rviz")),
         ),
 
-        # Instantiate the robot in Gazebo.
-        GroupAction(
-            actions=[
-                PushRosNamespace(LaunchConfiguration("name")),
-                SetRemap(src='/tf', dst=['/agent', LaunchConfiguration("id"), '/tf']),
-                SetRemap(src='/tf_static', dst=['/agent', LaunchConfiguration("id"), '/tf_static']),
-                
-                # This node calls a Gazebo service to spawn the robot.
-                Node(
-                    package='gazebo_ros',
-                    executable='spawn_entity.py',
-                    arguments=[
-                        '-entity', LaunchConfiguration("name"),
-                        '-file', LaunchConfiguration("urdf_path"),
-                        '-robot_namespace', LaunchConfiguration("name"),
-                        '-timeout', '500.0',
-                        '-x', LaunchConfiguration("pose_x"),
-                        '-y', LaunchConfiguration("pose_y"),
-                        '-z', '0.01',
-                        '-b'
-                    ],
-                ),
-
-                # Run the robot state publisher.
-                OpaqueFunction(
-                    function=createRsp,
-                    args=[LaunchConfiguration('urdf_path')]
-                ),
-            ]
+        # Instantiate the robot in the simulator.
+        IncludeLaunchDescription(
+            AnyLaunchDescriptionSource(
+                LaunchConfiguration("simulator_agent_integration_launch_file")
+            ),
+            launch_arguments={
+                "id": LaunchConfiguration("id"),
+                "namespace": LaunchConfiguration("namespace"),
+                "urdf_path": LaunchConfiguration("urdf_path"),
+                "initial_pos_x": LaunchConfiguration("initial_pos_x"),
+                "initial_pos_y": LaunchConfiguration("initial_pos_y"),
+                "initial_pos_z": LaunchConfiguration("initial_pos_z")
+            }.items(),
         ),
     ])
 

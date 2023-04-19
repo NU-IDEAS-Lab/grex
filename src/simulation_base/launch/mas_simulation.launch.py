@@ -70,7 +70,7 @@ def generate_launch_description():
             'gazebo_world_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
         DeclareLaunchArgument(
-            'simulator_launch_file', default_value=[FindPackageShare("simulation_base"), "/launch/simulator/gazebo.launch.yaml"]
+            'simulator_launch_file', default_value=[FindPackageShare("simulation_base"), "/launch/simulator/gazebo/simulator.launch.yaml"]
         ),
 
         # Launch the management service node, which allows us to control the launch process via ROS service calls.
