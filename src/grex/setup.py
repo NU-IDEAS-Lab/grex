@@ -2,7 +2,7 @@ from setuptools import setup
 import glob
 import os
 
-package_name = 'simulation_base'
+package_name = 'grex'
 
 def genDataFilesDirectoryRecursive(directory):
     ''' Adapted from https://answers.ros.org/question/397319/how-to-copy-folders-with-subfolders-to-package-installation-path/?answer=397410#post-id-397410 '''

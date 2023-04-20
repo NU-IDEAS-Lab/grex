@@ -32,20 +32,20 @@ def generate_launch_description():
             'map', default_value='cumberland'
         ),
         DeclareLaunchArgument(
-            'map_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/", LaunchConfiguration("map"), ".yaml"]
+            'map_file', default_value=[FindPackageShare("grex"), "/models/maps/", LaunchConfiguration("map"), "/", LaunchConfiguration("map"), ".yaml"]
         ),
         DeclareLaunchArgument(
             'model_name', default_value='waffle'
         ),
         DeclareLaunchArgument(
-            'urdf_path', default_value=[FindPackageShare('simulation_base'), '/models/robots/', LaunchConfiguration("model_name"), '.model']
+            'urdf_path', default_value=[FindPackageShare('grex'), '/models/robots/', LaunchConfiguration("model_name"), '.model']
         ),
         DeclareLaunchArgument(
             'use_rviz', default_value='false'
         ),
         DeclareLaunchArgument(
             'simulator_agent_integration_launch_file',
-            default_value=[FindPackageShare("simulation_base"), "/launch/simulator/gazebo/agent.launch.yaml"]
+            default_value=[FindPackageShare("grex"), "/launch/simulator/gazebo/agent.launch.yaml"]
         ),
 
 
@@ -55,7 +55,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             arguments=['-d', PathJoinSubstitution([
-                FindPackageShare('simulation_base'),
+                FindPackageShare('grex'),
                 'config',
                 'agent.rviz'
             ])],

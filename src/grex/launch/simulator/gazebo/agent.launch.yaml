@@ -12,7 +12,7 @@ launch:
     default: "waffle"
 - arg:
     name: "urdf_path"
-    default: "$(find-pkg-share simulation_base)/models/robots/$(var model_name).model"
+    default: "$(find-pkg-share grex)/models/robots/$(var model_name).model"
 - arg:
     name: "initial_pos_x"
     default: "0.0"

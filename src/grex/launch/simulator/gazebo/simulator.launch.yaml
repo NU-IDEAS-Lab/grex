@@ -6,7 +6,7 @@ launch:
     default: "cumberland"
 - arg:
     name: "gazebo_world_file"
-    default: "$(find-pkg-share simulation_base)/models/maps/$(var map)/model.sdf"
+    default: "$(find-pkg-share grex)/models/maps/$(var map)/model.sdf"
 - arg:
     name: "headless"
     default: "false"
