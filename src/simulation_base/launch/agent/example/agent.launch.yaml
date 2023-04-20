@@ -1,0 +1,73 @@
+launch:
+
+# Launch arguments.
+- arg:
+    name: "id"
+    default: "0"
+- arg:
+    name: "namespace"
+    default: "agent$(var id)"
+- arg:
+    name: "model_name"
+    default: "waffle"
+- arg:
+    name: "urdf_path"
+    default: "$(find-pkg-share simulation_base)/models/robots/$(var model_name).model"
+- arg:
+    name: "map"
+    default: "cumberland"
+- arg:
+    name: "map_file"
+    default: "$(find-pkg-share simulation_base)/models/maps/$(var map)/$(var map).yaml"
+- arg:
+    name: "initial_pos_x"
+    default: "0.0"
+- arg:
+    name: "initial_pos_y"
+    default: "0.0"
+- arg:
+    name: "initial_pos_z"
+    default: "0.0"
+- arg:
+    name: "use_nav2"
+    default: "true"
+
+
+# Include the base agent.
+# Most agents should do this!
+- include:
+    file: "$(find-pkg-share simulation_base)/launch/agent/base/agent.launch.py"
+
+
+# As an example, we will run the navigation stack for a turtlebot.
+- group:
+    # We remap the scan topic thanks to a nav2 namespace bug.
+    - set_remap:
+        from: "/scan"
+        to: "/$(var namespace)/scan"
+    
+    # Here we include the nav2 launch file.
+    - include:
+        file: "$(find-pkg-share simulation_base)/launch/agent/example/robot_navigation2.launch.py"
+        arg:
+            - name: "namespace"
+              value: "$(var namespace)"
+            - name: "use_namespace"
+              value: "False" # Don't set the namespace again - we are already in the agent NS
+            - name: "use_sim_time"
+              value: 'True'
+            - name: "use_composition"
+              value: 'False'
+            - name: "map"
+              value: "$(var map_file)"
+            - name: "params_file"
+              value: "$(find-pkg-share simulation_base)/config/nav2_params.yaml"
+            - name: "pose_x"
+              value: "$(var initial_pos_x)"
+            - name: "pose_y"
+              value: "$(var initial_pos_y)"
+            - name: "log_level"
+              value: "warn"
+        if: "$(var use_nav2)"
+
+# This is just an example. Add your own nodes!

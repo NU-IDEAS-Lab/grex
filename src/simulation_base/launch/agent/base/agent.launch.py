@@ -49,60 +49,17 @@ def generate_launch_description():
         ),
 
 
-        # Start the navigation stack.
-        GroupAction(
-            actions=[
-                # Manually remap the scan topic.
-                SetRemap(src='/scan', dst=['/agent', LaunchConfiguration("id"), '/scan']),
-
-                # Run the navigation stack.
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution([
-                            FindPackageShare('simulation_base'),
-                            'launch',
-                            'agent',
-                            'robot_navigation2.launch.py'
-                        ])
-                    ]),
-                    launch_arguments={
-                        'namespace': LaunchConfiguration("namespace"),
-                        'use_namespace': 'True',
-                        'use_composition': 'False',
-                        'use_sim_time': 'True',
-                        'map': LaunchConfiguration("map_file"),
-                        'params_file': PathJoinSubstitution([
-                            FindPackageShare('simulation_base'),
-                            'config',
-                            'nav2_params.yaml'
-                        ]),
-                        'pose_x': LaunchConfiguration("initial_pos_x"),
-                        'pose_y': LaunchConfiguration("initial_pos_y"),
-                        'log_level': 'warn',
-                    }.items(),
-                ),
-            ]
-        ),
-
         # Start RViz if use_rviz=true.
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('nav2_bringup'),
-                    'launch',
-                    'rviz_launch.py'
-                ])
-            ]),
-            launch_arguments={
-                'namespace': LaunchConfiguration("namespace"),
-                'use_namespace': 'True',
-                'rviz_config': PathJoinSubstitution([
-                    FindPackageShare('nav2_bringup'),
-                    'rviz',
-                    'nav2_namespaced_view.rviz'
-                ]),
-            }.items(),
+        Node(
             condition = IfCondition(LaunchConfiguration("use_rviz")),
+            package='rviz2',
+            executable='rviz2',
+            arguments=['-d', PathJoinSubstitution([
+                FindPackageShare('simulation_base'),
+                'config',
+                'agent.rviz'
+            ])],
+            output='screen'
         ),
 
         # Instantiate the robot in the simulator.
@@ -118,6 +75,12 @@ def generate_launch_description():
                 "initial_pos_y": LaunchConfiguration("initial_pos_y"),
                 "initial_pos_z": LaunchConfiguration("initial_pos_z")
             }.items(),
+        ),
+
+        # Run the robot state publisher.
+        OpaqueFunction(
+            function=createRsp,
+            args=[LaunchConfiguration('urdf_path')]
         ),
     ])
 
