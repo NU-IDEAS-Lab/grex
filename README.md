@@ -121,7 +121,7 @@ To operate the simulator, perform the following steps:
  3) Run the simulation:
 
     ```
-    ros2 launch simulation_base mas_simulation.launch.py agent_count:=3
+    ros2 launch grex simulation.launch.py agent_count:=3
     ```
 
     * *Note: To view available launch arguments, add a* `-s` *flag to the end of the command.*

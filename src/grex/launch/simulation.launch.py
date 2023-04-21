@@ -8,7 +8,7 @@ from launch.actions import GroupAction, OpaqueFunction, SetEnvironmentVariable
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler, LogInfo, EmitEvent
 from launch_ros_manager_py.actions import LaunchManagementServiceNode
 from launch.conditions import IfCondition, UnlessCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, TextSubstitution, LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from statistics import mean
@@ -22,26 +22,35 @@ def generate_agents(context: LaunchContext, agent_count_subst):
     agent_count = int(context.perform_substitution(agent_count_subst))
     agents = []
     for agent in range(agent_count):
+    
+        # default agent namespace
+        agentNs = "agent" + str(agent)
+
         agents += [
             LogInfo(msg=TextSubstitution(text="Creating agent " + str(agent))),
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([
-                    PathJoinSubstitution([
-                        FindPackageShare('simulation_base'),
-                        'launch',
-                        'agent',
-                        'robot.launch.py'
-                    ])
-                ]),
-                launch_arguments={
-                    "id": str(agent),
-                    "name": "agent" + str(agent),
-                    "use_rviz": LaunchConfiguration("use_rviz"),
-                    "map": LaunchConfiguration("map"),
-                    "pose_x": str(35.0 + agent),
-                    "pose_y": "22.0",
-                }.items()
-            )
+
+            # Set namespace.
+            GroupAction(
+                actions=[
+                    PushRosNamespace(agentNs),
+                    SetRemap(src="/tf", dst=f"/{agentNs}/tf"),
+                    SetRemap(src="/tf_static", dst=f"/{agentNs}/tf_static"),
+
+                    IncludeLaunchDescription(
+                        AnyLaunchDescriptionSource(
+                            LaunchConfiguration("agent_launch_file")
+                        ),
+                        launch_arguments={
+                            "id": str(agent),
+                            "namespace": agentNs,
+                            "use_rviz": LaunchConfiguration("use_rviz"),
+                            "map": LaunchConfiguration("map"),
+                            "initial_pos_x": str(35.0 + agent),
+                            "initial_pos_y": "22.0",
+                        }.items()
+                    )
+                ]
+            ),
         ]
     
     return agents
@@ -61,50 +70,29 @@ def generate_launch_description():
             'use_rviz', default_value='false'
         ),
         DeclareLaunchArgument(
-            'use_gzclient', default_value='true'
+            'headless', default_value='false'
         ),
         DeclareLaunchArgument(
             'map', default_value='cumberland'
         ),
         DeclareLaunchArgument(
-            'gazebo_world_file', default_value=[FindPackageShare("simulation_base"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
+            'gazebo_world_file', default_value=[FindPackageShare("grex"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
+        ),
+        DeclareLaunchArgument(
+            'simulator_launch_file', default_value=[FindPackageShare("grex"), "/launch/simulator/gazebo/simulator.launch.yaml"]
+        ),
+        DeclareLaunchArgument(
+            'agent_launch_file', default_value=[FindPackageShare("grex"), "/launch/agent/example/agent.launch.yaml"]
         ),
 
         # Launch the management service node, which allows us to control the launch process via ROS service calls.
         LaunchManagementServiceNode(),
 
-        # Gazebo simulation server.
-        GroupAction(
-            actions=[
-                SetEnvironmentVariable(
-                    name="DISPLAY",
-                    value=":0"
-                ),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution([
-                            FindPackageShare('gazebo_ros'),
-                            'launch',
-                            'gzserver.launch.py'
-                        ])
-                    ]),
-                    launch_arguments={
-                        'world': LaunchConfiguration("gazebo_world_file"),
-                    }.items()
-                ),
-            ]
-        ),
-
-        # Gazebo client (GUI).
+        # Launch the simulator.
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([
-                    FindPackageShare('gazebo_ros'),
-                    'launch',
-                    'gzclient.launch.py'
-                ])
-            ]),
-            condition = IfCondition(LaunchConfiguration("use_gzclient")),
+            AnyLaunchDescriptionSource(
+                LaunchConfiguration("simulator_launch_file")
+            )
         ),
 
         # Agent nodes.
