@@ -7,7 +7,11 @@ pipeline {
         stage('Build') { 
             steps { 
                 script{
-                    img = docker.build("nu-ideas-lab/grex_dev", "--platform linux/amd64 .")
+                    label = "nu-ideas-lab/grex_dev"
+                    if (env.BRANCH_NAME == 'master') {
+                        label = "nu-ideas-lab/grex"
+                    }
+                    img = docker.build(label, "--platform linux/amd64 .")
                 }
             }
         }
