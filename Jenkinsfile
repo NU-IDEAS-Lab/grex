@@ -22,7 +22,7 @@ pipeline {
             }
             steps {
                 script{
-                        docker.withRegistry('https://ghcr.io', 'ideas-ghcr-agoeckner') {
+                        docker.withRegistry('https://ghcr.io', 'ideas-ci-github') {
                         img.push("${env.tag_safe}")
                         if (env.BRANCH_NAME == 'master') {
                             img.push('latest')
