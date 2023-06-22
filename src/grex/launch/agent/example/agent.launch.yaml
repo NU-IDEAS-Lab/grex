@@ -36,7 +36,7 @@ launch:
 # Include the base agent.
 # Most agents should do this!
 - include:
-    file: "$(find-pkg-share grex)/launch/agent/base/agent.launch.py"
+    file: "$(find-pkg-share grex)/launch/agent/base/agent.launch.yaml"
 
 
 # As an example, we will run the navigation stack for a turtlebot.

@@ -1,0 +1,76 @@
+launch:
+
+# Launch arguments.
+- arg:
+    name: "id"
+    default: "0"
+- arg:
+    name: "namespace"
+    default: "agent$(var id)"
+- arg:
+    name: "model_name"
+    default: "waffle"
+- arg:
+    name: "urdf_path"
+    default: "$(find-pkg-share grex)/models/robots/$(var model_name).model"
+- arg:
+    name: "map"
+    default: "cumberland"
+- arg:
+    name: "map_file"
+    default: "$(find-pkg-share grex)/models/maps/$(var map)/$(var map).yaml"
+- arg:
+    name: "initial_pos_x"
+    default: "0.0"
+- arg:
+    name: "initial_pos_y"
+    default: "0.0"
+- arg:
+    name: "initial_pos_z"
+    default: "0.0"
+- arg:
+    name: "use_nav2"
+    default: "true"
+- arg:
+    name: "use_rviz"
+    default: "true"
+- arg:
+    name: "simulator_agent_integration_launch_file"
+    default: "$(find-pkg-share grex)/launch/simulator/gazebo/agent.launch.yaml"
+
+
+# Start RViz if use_rviz=true.
+- node:
+    pkg: "rviz2"
+    exec: "rviz2"
+    args: "-d $(find-pkg-share grex)/config/agent.rviz"
+
+# Instantiate the robot in the simulator.
+- include:
+    file: "$(var simulator_agent_integration_launch_file)"
+    arg:
+        - name: "id"
+          value: "$(var id)"
+        - name: "namespace"
+          value: "$(var namespace)"
+        - name: "urdf_path"
+          value: "$(var urdf_path)"
+        - name: "initial_pos_x"
+          value: "$(var initial_pos_x)"
+        - name: "initial_pos_y"
+          value: "$(var initial_pos_y)"
+        - name: "initial_pos_z"
+          value: "$(var initial_pos_z)"
+
+# Run the robot state publisher.
+# TODO: Load URDF using the file_content substitution once that is available:
+#       https://github.com/ros2/launch/blob/rolling/launch/launch/substitutions/file_content.py
+- node:
+    pkg: "robot_state_publisher"
+    exec: "robot_state_publisher"
+    output: "screen"
+    param:
+        - name: "use_sim_time"
+          value: true
+        - name: "robot_description"
+          value: "$(eval \"open('$(var urdf_path)', 'r').read()\")"
