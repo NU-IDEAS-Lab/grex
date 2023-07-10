@@ -33,8 +33,6 @@ def generate_agents(context: LaunchContext, agent_count_subst):
             GroupAction(
                 actions=[
                     PushRosNamespace(agentNs),
-                    SetRemap(src="/tf", dst=f"/{agentNs}/tf"),
-                    SetRemap(src="/tf_static", dst=f"/{agentNs}/tf_static"),
 
                     IncludeLaunchDescription(
                         AnyLaunchDescriptionSource(

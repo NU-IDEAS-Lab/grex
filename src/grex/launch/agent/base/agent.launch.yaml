@@ -74,3 +74,5 @@ launch:
           value: true
         - name: "robot_description"
           value: "$(eval \"open('$(var urdf_path)', 'r').read()\")"
+        - name: "frame_prefix"
+          value: "$(var namespace)/"
