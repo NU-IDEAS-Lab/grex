@@ -39,7 +39,7 @@ from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('nav2_bringup')
+    bringup_dir = get_package_share_directory('grex_agent_nav')
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     # Create the launch configuration variables
@@ -163,7 +163,7 @@ def generate_launch_description():
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
                               'use_respawn': use_respawn,
-                              'params_file': params_file}.items()),
+                              'configured_params_file': configured_params}.items()),
 
         GroupAction(
             actions=[
@@ -189,7 +189,7 @@ def generate_launch_description():
                                     'map': map_yaml_file,
                                     'use_sim_time': use_sim_time,
                                     'autostart': autostart,
-                                    'params_file': params_file,
+                                    'configured_params_file': configured_params,
                                     'use_composition': use_composition,
                                     'use_respawn': use_respawn,
                                     'container_name': 'nav2_container'}.items()
@@ -202,7 +202,7 @@ def generate_launch_description():
             launch_arguments={'namespace': namespace,
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
-                              'params_file': params_file,
+                              'configured_params_file': configured_params,
                               'use_composition': use_composition,
                               'use_respawn': use_respawn,
                               'container_name': 'nav2_container'}.items()),

@@ -33,24 +33,19 @@ def generate_launch_description():
     autostart = LaunchConfiguration('autostart')
     use_respawn = LaunchConfiguration('use_respawn')
     log_level = LaunchConfiguration('log_level')
+    configured_params = LaunchConfiguration('configured_params_file')
 
     # Variables
     lifecycle_nodes = ['map_saver']
 
     # Getting directories and launch-files
-    bringup_dir = get_package_share_directory('nav2_bringup')
+    bringup_dir = get_package_share_directory('grex_agent_nav')
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     slam_launch_file = os.path.join(slam_toolbox_dir, 'launch', 'online_sync_launch.py')
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
         'use_sim_time': use_sim_time}
-
-    configured_params = RewrittenYaml(
-        source_file=params_file,
-        root_key=namespace,
-        param_rewrites=param_substitutions,
-        convert_types=True)
 
     # Declare the launch arguments
     declare_namespace_cmd = DeclareLaunchArgument(
@@ -80,6 +75,17 @@ def generate_launch_description():
         'log_level', default_value='info',
         description='log level')
 
+    declare_configured_params_file_cmd = DeclareLaunchArgument(
+        'configured_params_file',
+        default_value = RewrittenYaml(
+            source_file=params_file,
+            root_key=namespace,
+            param_rewrites=param_substitutions,
+            convert_types=True
+        ),
+        description='Full path to the ROS2 parameters file with robot configurations')
+
+
     # Nodes launching commands
 
     start_map_saver_server_cmd = Node(
@@ -104,7 +110,7 @@ def generate_launch_description():
     # If the provided param file doesn't have slam_toolbox params, we must remove the 'params_file'
     # LaunchConfiguration, or it will be passed automatically to slam_toolbox and will not load
     # the default file
-    has_slam_toolbox_params = HasNodeParams(source_file=params_file,
+    has_slam_toolbox_params = HasNodeParams(source_file=configured_params,
                                             node_name='slam_toolbox')
 
     start_slam_toolbox_cmd = IncludeLaunchDescription(
@@ -115,7 +121,7 @@ def generate_launch_description():
     start_slam_toolbox_cmd_with_params = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(slam_launch_file),
         launch_arguments={'use_sim_time': use_sim_time,
-                          'slam_params_file': params_file}.items(),
+                          'slam_params_file': configured_params}.items(),
         condition=IfCondition(has_slam_toolbox_params))
 
     ld = LaunchDescription()
@@ -127,6 +133,7 @@ def generate_launch_description():
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
+    ld.add_action(declare_configured_params_file_cmd)
 
     # Running Map Saver Server
     ld.add_action(start_map_saver_server_cmd)

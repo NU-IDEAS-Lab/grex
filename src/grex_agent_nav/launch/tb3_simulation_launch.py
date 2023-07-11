@@ -28,7 +28,7 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('nav2_bringup')
+    bringup_dir = get_package_share_directory('grex_agent_nav')
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     # Create the launch configuration variables
