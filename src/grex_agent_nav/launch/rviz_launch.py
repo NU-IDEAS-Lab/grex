@@ -62,7 +62,10 @@ def generate_launch_description():
 
     namespaced_rviz_config_file = ReplaceString(
             source_file=rviz_config_file,
-            replacements={'<robot_namespace>': ('/', namespace)})
+            replacements={
+                '<robot_namespace>': ('/', namespace),
+                '<tf_prefix>': (namespace, '/'),
+            })
 
     start_namespaced_rviz_cmd = Node(
         condition=IfCondition(use_namespace),
@@ -71,23 +74,21 @@ def generate_launch_description():
         namespace=namespace,
         arguments=['-d', namespaced_rviz_config_file],
         output='screen',
-        remappings=[('/tf', 'tf'),
-                    ('/tf_static', 'tf_static'),
-                    ('/goal_pose', 'goal_pose'),
+        remappings=[('/goal_pose', 'goal_pose'),
                     ('/clicked_point', 'clicked_point'),
                     ('/initialpose', 'initialpose')])
 
-    exit_event_handler = RegisterEventHandler(
-        condition=UnlessCondition(use_namespace),
-        event_handler=OnProcessExit(
-            target_action=start_rviz_cmd,
-            on_exit=EmitEvent(event=Shutdown(reason='rviz exited'))))
+    # exit_event_handler = RegisterEventHandler(
+    #     condition=UnlessCondition(use_namespace),
+    #     event_handler=OnProcessExit(
+    #         target_action=start_rviz_cmd,
+    #         on_exit=EmitEvent(event=Shutdown(reason='rviz exited'))))
 
-    exit_event_handler_namespaced = RegisterEventHandler(
-        condition=IfCondition(use_namespace),
-        event_handler=OnProcessExit(
-            target_action=start_namespaced_rviz_cmd,
-            on_exit=EmitEvent(event=Shutdown(reason='rviz exited'))))
+    # exit_event_handler_namespaced = RegisterEventHandler(
+    #     condition=IfCondition(use_namespace),
+    #     event_handler=OnProcessExit(
+    #         target_action=start_namespaced_rviz_cmd,
+    #         on_exit=EmitEvent(event=Shutdown(reason='rviz exited'))))
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -102,7 +103,7 @@ def generate_launch_description():
     ld.add_action(start_namespaced_rviz_cmd)
 
     # Add other nodes and processes we need
-    ld.add_action(exit_event_handler)
-    ld.add_action(exit_event_handler_namespaced)
+    # ld.add_action(exit_event_handler)
+    # ld.add_action(exit_event_handler_namespaced)
 
     return ld
