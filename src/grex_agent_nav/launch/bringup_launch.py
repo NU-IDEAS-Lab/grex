@@ -60,8 +60,9 @@ def generate_launch_description():
     # https://github.com/ros/robot_state_publisher/pull/30
     # TODO(orduno) Substitute with `PushNodeRemapping`
     #              https://github.com/ros2/launch_ros/issues/56
-    remappings = [('/tf', 'tf'),
-                  ('/tf_static', 'tf_static')]
+    # remappings = [('/tf', 'tf'),
+    #               ('/tf_static', 'tf_static')]
+    remappings = []
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
@@ -74,10 +75,14 @@ def generate_launch_description():
         'bt_navigator.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_footprint'],
         'local_costmap.local_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
         'local_costmap.local_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'local_costmap.local_costmap.ros__parameters.voxel_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
         'global_costmap.global_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
         'global_costmap.global_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'global_costmap.global_costmap.ros__parameters.obstacle_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
         'behavior_server.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
-        'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link']
+        'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'map_server.ros__parameters.frame_id': [LaunchConfiguration('namespace'), '/map'],
+        'smoother_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
     }
 
     configured_params = RewrittenYaml(
