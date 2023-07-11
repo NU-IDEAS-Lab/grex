@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+
+##
+## NOTE: This file is derived from the nav2 project:
+##          https://github.com/ros-planning/navigation2/blob/7657f2f37659808884ae6a708f3d51054af6355c/nav2_bringup/launch/bringup_launch.py
+##       Modifications by Anthony Goeckner for use by the IDEAS Lab at Northwestern University.
+##
+
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -24,6 +33,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.actions import PushRosNamespace
+from launch_ros.actions import SetParameter
 from nav2_common.launch import RewrittenYaml
 
 
@@ -56,7 +66,19 @@ def generate_launch_description():
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
         'use_sim_time': use_sim_time,
-        'yaml_filename': map_yaml_file}
+        'yaml_filename': map_yaml_file,
+        'amcl.ros__parameters.base_frame_id': [LaunchConfiguration('namespace'), '/base_footprint'],
+        'amcl.ros__parameters.global_frame_id': [LaunchConfiguration('namespace'), '/map'],
+        'amcl.ros__parameters.odom_frame_id': [LaunchConfiguration('namespace'), '/odom'],
+        'bt_navigator.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
+        'bt_navigator.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_footprint'],
+        'local_costmap.local_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
+        'local_costmap.local_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'global_costmap.global_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
+        'global_costmap.global_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'behavior_server.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
+        'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link']
+    }
 
     configured_params = RewrittenYaml(
         source_file=params_file,
@@ -111,6 +133,12 @@ def generate_launch_description():
     declare_log_level_cmd = DeclareLaunchArgument(
         'log_level', default_value='info',
         description='log level')
+    
+    # Initial position given to the localization system.
+    declare_pose_x_cmd = DeclareLaunchArgument(
+            'pose_x', default_value='0.0')
+    declare_pose_y_cmd = DeclareLaunchArgument(
+            'pose_y', default_value='0.0')
 
     # Specify the actions
     bringup_cmd_group = GroupAction([
@@ -137,18 +165,37 @@ def generate_launch_description():
                               'use_respawn': use_respawn,
                               'params_file': params_file}.items()),
 
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir,
-                                                       'localization_launch.py')),
-            condition=IfCondition(PythonExpression(['not ', slam])),
-            launch_arguments={'namespace': namespace,
-                              'map': map_yaml_file,
-                              'use_sim_time': use_sim_time,
-                              'autostart': autostart,
-                              'params_file': params_file,
-                              'use_composition': use_composition,
-                              'use_respawn': use_respawn,
-                              'container_name': 'nav2_container'}.items()),
+        GroupAction(
+            actions=[
+                # Set initial pose.
+                SetParameter(
+                    name="set_initial_pose",
+                    value=True
+                ),
+                SetParameter(
+                    name="initial_pose.x",
+                    value=LaunchConfiguration("pose_x")
+                ),
+                SetParameter(
+                    name="initial_pose.y",
+                    value=LaunchConfiguration("pose_y")
+                ),
+
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(os.path.join(launch_dir,
+                                                            'localization_launch.py')),
+                    condition=IfCondition(PythonExpression(['not ', slam])),
+                    launch_arguments={'namespace': namespace,
+                                    'map': map_yaml_file,
+                                    'use_sim_time': use_sim_time,
+                                    'autostart': autostart,
+                                    'params_file': params_file,
+                                    'use_composition': use_composition,
+                                    'use_respawn': use_respawn,
+                                    'container_name': 'nav2_container'}.items()
+                ),
+            ]
+        ),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(launch_dir, 'navigation_launch.py')),
@@ -178,6 +225,8 @@ def generate_launch_description():
     ld.add_action(declare_use_composition_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
+    ld.add_action(declare_pose_x_cmd)
+    ld.add_action(declare_pose_y_cmd)
 
     # Add the actions to launch all of the navigation nodes
     ld.add_action(bringup_cmd_group)
