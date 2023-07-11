@@ -11,8 +11,11 @@ launch:
     name: "model_name"
     default: "waffle"
 - arg:
+    name: "urdf_xacro_path"
+    default: "$(find-pkg-share grex)/models/robots/$(var model_name).model.xacro"
+- arg:
     name: "urdf_path"
-    default: "$(find-pkg-share grex)/models/robots/$(var model_name).model"
+    default: "$(dirname)/parsed_$(var namespace).urdf"
 - arg:
     name: "map"
     default: "cumberland"
@@ -38,6 +41,10 @@ launch:
     name: "simulator_agent_integration_launch_file"
     default: "$(find-pkg-share grex)/launch/simulator/gazebo/agent.launch.yaml"
 
+# Parse the xacro data.
+- arg:
+    name: "urdf_xacro_data"
+    default: "$(command '$(find-exec xacro) -o \\'$(var urdf_path)\\' $(var urdf_xacro_path) tf_prefix:=$(var namespace)/' warn)"
 
 # Start RViz if use_rviz=true.
 - node:
