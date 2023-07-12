@@ -54,7 +54,7 @@ launch:
             - name: "use_sim_time"
               value: 'True'
             - name: "use_composition"
-              value: 'False'
+              value: 'True'
             - name: "map"
               value: "$(var map_file)"
             - name: "params_file"
