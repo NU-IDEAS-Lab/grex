@@ -39,7 +39,7 @@ from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('nav2_bringup')
+    bringup_dir = get_package_share_directory('grex_agent_nav')
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     # Create the launch configuration variables
@@ -60,13 +60,29 @@ def generate_launch_description():
     # https://github.com/ros/robot_state_publisher/pull/30
     # TODO(orduno) Substitute with `PushNodeRemapping`
     #              https://github.com/ros2/launch_ros/issues/56
-    remappings = [('/tf', 'tf'),
-                  ('/tf_static', 'tf_static')]
+    # remappings = [('/tf', 'tf'),
+    #               ('/tf_static', 'tf_static')]
+    remappings = []
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
         'use_sim_time': use_sim_time,
         'yaml_filename': map_yaml_file,
+        'amcl.ros__parameters.base_frame_id': [LaunchConfiguration('namespace'), '/base_footprint'],
+        'amcl.ros__parameters.global_frame_id': [LaunchConfiguration('namespace'), '/map'],
+        'amcl.ros__parameters.odom_frame_id': [LaunchConfiguration('namespace'), '/odom'],
+        'bt_navigator.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
+        'bt_navigator.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_footprint'],
+        'local_costmap.local_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
+        'local_costmap.local_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'local_costmap.local_costmap.ros__parameters.voxel_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
+        'global_costmap.global_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
+        'global_costmap.global_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'global_costmap.global_costmap.ros__parameters.obstacle_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
+        'behavior_server.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
+        'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'map_server.ros__parameters.frame_id': [LaunchConfiguration('namespace'), '/map'],
+        'smoother_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
     }
 
     configured_params = RewrittenYaml(
@@ -152,7 +168,7 @@ def generate_launch_description():
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
                               'use_respawn': use_respawn,
-                              'params_file': params_file}.items()),
+                              'configured_params_file': configured_params}.items()),
 
         GroupAction(
             actions=[
@@ -178,7 +194,7 @@ def generate_launch_description():
                                     'map': map_yaml_file,
                                     'use_sim_time': use_sim_time,
                                     'autostart': autostart,
-                                    'params_file': params_file,
+                                    'configured_params_file': configured_params,
                                     'use_composition': use_composition,
                                     'use_respawn': use_respawn,
                                     'container_name': 'nav2_container'}.items()
@@ -191,7 +207,7 @@ def generate_launch_description():
             launch_arguments={'namespace': namespace,
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
-                              'params_file': params_file,
+                              'configured_params_file': configured_params,
                               'use_composition': use_composition,
                               'use_respawn': use_respawn,
                               'container_name': 'nav2_container'}.items()),

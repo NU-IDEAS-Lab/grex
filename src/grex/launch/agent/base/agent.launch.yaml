@@ -11,8 +11,11 @@ launch:
     name: "model_name"
     default: "waffle"
 - arg:
+    name: "urdf_xacro_path"
+    default: "$(find-pkg-share grex)/models/robots/$(var model_name).model.xacro"
+- arg:
     name: "urdf_path"
-    default: "$(find-pkg-share grex)/models/robots/$(var model_name).model"
+    default: "$(dirname)/parsed_$(var namespace).urdf"
 - arg:
     name: "map"
     default: "cumberland"
@@ -38,12 +41,22 @@ launch:
     name: "simulator_agent_integration_launch_file"
     default: "$(find-pkg-share grex)/launch/simulator/gazebo/agent.launch.yaml"
 
+# Parse the xacro data.
+- arg:
+    name: "urdf_xacro_data"
+    default: "$(command '$(find-exec xacro) -o \\'$(var urdf_path)\\' $(var urdf_xacro_path) tf_prefix:=$(var namespace)/' warn)"
 
 # Start RViz if use_rviz=true.
-- node:
-    pkg: "rviz2"
-    exec: "rviz2"
-    args: "-d $(find-pkg-share grex)/config/agent.rviz"
+- include:
+    file: "$(find-pkg-share grex_agent_nav)/launch/rviz_launch.py"
+    arg:
+        - name: "namespace"
+          value: "$(var namespace)"
+        - name: "use_namespace"
+          value: "True"
+        - name: "rviz_config"
+          value: "$(find-pkg-share grex)/config/agent_namespaced.rviz"
+    if: "$(var use_rviz)"
 
 # Instantiate the robot in the simulator.
 - include:
@@ -74,3 +87,5 @@ launch:
           value: true
         - name: "robot_description"
           value: "$(eval \"open('$(var urdf_path)', 'r').read()\")"
+        - name: "frame_prefix"
+          value: "$(var namespace)/"
