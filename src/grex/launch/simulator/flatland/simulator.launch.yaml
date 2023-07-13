@@ -1,0 +1,146 @@
+launch:
+
+- arg:
+    name: "map"
+    default: "cumberland"
+
+- arg:
+    name: "flatland_world_file"
+    default: "$(find-pkg-share grex)/models/maps/$(var map)/$(var map)_flatland.yaml"
+
+- arg:
+    name: "global_frame_id"
+    default: "map"
+
+- arg:
+    name: "update_rate"
+    default: "100.0"
+
+- arg:
+    name: "step_size"
+    default: "0.01"
+
+- arg:
+    name: "show_viz"
+    default: "false"
+
+- arg:
+    name: "viz_pub_rate"
+    default: "30.0"
+
+- arg:
+    name: "use_sim_time"
+    default: "true"
+
+- arg: 
+    name: "laser_topic"
+    default: "scan"
+
+- arg:
+    name: "odom_topic"
+    default: "odom"
+
+- arg:
+    name: "odom_frame_id"
+    default: "odom"
+
+- arg:
+    name: "base_frame_id"
+    default: "base"
+
+- arg:
+    name: "min_obstacle_height"
+    default: "0.0"
+
+- arg:
+    name: "max_obstacle_height"
+    default: "5.0"
+
+- arg:
+    name: "move_base/local_costmap/obstacle_layer/scan/min_obstacle_height"
+    default: "$(var min_obstacle_height)"
+
+- arg:
+    name: "move_base/local_costmap/obstacle_layer/scan/max_obstacle_height"
+    default: "$(var max_obstacle_height)"
+
+- arg:
+    name: "move_base/global_costmap/obstacle_layer/scan/min_obstacle_height"
+    default: "$(var min_obstacle_height)"
+
+- arg:
+    name: "move_base/global_costmap/obstacle_layer/scan/max_obstacle_height"
+    default: "$(var max_obstacle_height)"
+
+# - include:
+#     file: "$(find-pkg-share grex)/launch/simulator/flatland/environment.launch.py"
+
+- node:
+    name: "flatland_server"
+    pkg: "flatland_server"
+    exec: "flatland_server"
+    output: "screen"
+    param:
+    -
+        name: "world_path"
+        value: "$(var flatland_world_file)"
+    -
+        name: "update_rate"
+        value: "$(var update_rate)"
+    -
+        name: "step_size"
+        value: "$(var step_size)"
+    -
+        name: "show_viz"
+        value: "$(var show_viz)"
+    -
+        name: "viz_pub_rate"
+        value: "$(var viz_pub_rate)"
+    -
+        name: "use_sim_time"
+        value: "$(var use_sim_time)"
+
+
+# - node:
+#     name: "map_server"
+#     pkg: "nav2_map_server"
+#     exec: "map_server"
+#     output: "screen"
+#     param:
+#     -
+#         name: "yaml_filename"
+#         value: "$(find-pkg-share grex)/models/maps/$(var map)/$(var map).yaml"
+#     -
+#         name: "frame_id"
+#         value: "$(var global_frame_id)"
+
+# - node:
+#     name: "lifecycle_manager_navigation"
+#     pkg: "nav2_lifecycle_manager"
+#     exec: "lifecycle_manager"
+#     output: "screen"
+#     param:
+#     - 
+#         name: "autostart"
+#         value: False
+#     -
+#         name: "node_names"
+#         value: ["map_server"]
+
+# - node:
+#     name: "tf"
+#     pkg: "tf2_ros"
+#     exec: "static_transform_publisher"
+#     args: "0 0 0 0 0 0 map odom"
+
+
+# - node:
+#     name: "rviz"
+#     pkg: "rviz2"
+#     exec: "rviz2"
+#     args: "-d $(find-pkg-share grex)/rviz/robot_navigation.rviz"
+#     param:
+#     -
+#         name: "use_sim_time"
+#         value: "$(var use_sim_time)"
+#     if: "$(var show_viz)"

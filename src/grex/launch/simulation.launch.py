@@ -45,6 +45,7 @@ def generate_agents(context: LaunchContext, agent_count_subst):
                             "map": LaunchConfiguration("map"),
                             "initial_pos_x": str(35.0 + agent),
                             "initial_pos_y": "22.0",
+                            "simulator_agent_integration_launch_file": LaunchConfiguration("simulator_agent_integration_launch_file")
                         }.items()
                     )
                 ]
@@ -77,7 +78,13 @@ def generate_launch_description():
             'gazebo_world_file', default_value=[FindPackageShare("grex"), "/models/maps/", LaunchConfiguration("map"), "/model.sdf"]
         ),
         DeclareLaunchArgument(
+            'flatland_world_file', default_value=[FindPackageShare("grex"), "/models/maps/", LaunchConfiguration("map"), "/", LaunchConfiguration("map"), "_flatland.yaml"]
+        ),
+        DeclareLaunchArgument(
             'simulator_launch_file', default_value=[FindPackageShare("grex"), "/launch/simulator/gazebo/simulator.launch.yaml"]
+        ),
+        DeclareLaunchArgument(
+            'simulator_agent_integration_launch_file', default_value=[FindPackageShare("grex"), "/launch/simulator/gazebo/agent.launch.yaml"]
         ),
         DeclareLaunchArgument(
             'agent_launch_file', default_value=[FindPackageShare("grex"), "/launch/agent/example/agent.launch.yaml"]
