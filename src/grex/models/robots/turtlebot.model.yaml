@@ -1,7 +1,7 @@
 # Turtlebot
 
 bodies:  # List of named bodies
-  - name: base # I changed from "base"
+  - name: base_link # I changed from "base"
     pose: [0, 0, 0] 
     type: dynamic  
     color: [1, 1, 1, 0.75] 
@@ -18,7 +18,7 @@ bodies:  # List of named bodies
         density: 1
         layers: []
 
-  - name: laser_mount
+  - name: base_scan # changed from laser_mount
     pose: [0, 0, 0] 
     type: dynamic  
     color: [1, 0, 0, 0.75] 
@@ -43,25 +43,26 @@ joints:
   - type: weld
     name: laser_mount_weld
     bodies: 
-      - name: laser_mount
+      - name: base_scan
         anchor: [0, 0]
-      - name: base
+      - name: base_link
         anchor: [0, 0]
   - type: weld
     name: shell_mount_weld
     bodies: 
       - name: shell
         anchor: [0, 0]
-      - name: base
+      - name: base_link
         anchor: [0, 0]
 
 plugins:
   - type: DiffDrive 
     name: turtlebot_drive 
-    body: base
+    body: base_link
     odom_frame_id: odom
     odom_pub: odom  # topic odom is published on
     pub_rate: 10
+    twist_sub: agent0/cmd_vel # modularize
     # odom_pose_noise: [0.0005,0.0005,0.0001]
     #odom_twist_noise: [0.001,0.001,0.001]
     # odom_pose_covariatf_static        0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 
@@ -70,9 +71,9 @@ plugins:
     #                         0.30, 0.31, 0.32, 0.33, 0.34, 0.35]
   - type: Laser
     name: laser_front
-    frame: laser_mount
-    topic: scan
-    body: laser_mount
+    frame: base_scan
+    topic: agent0/scan # modularize
+    body: base_scan
     broadcast_tf: false
     origin: [0, 0, 0]
     range: 20
@@ -82,9 +83,9 @@ plugins:
     layers: ["2d"]
   - type: Laser
     name: laser_3d
-    frame: laser_mount
+    frame: base_scan
     topic: scan_3d
-    body: laser_mount
+    body: base_scan
     broadcast_tf: false
     origin: [0, 0, 0]
     range: 3
@@ -95,4 +96,5 @@ plugins:
 
   - type: ModelTfPublisher
     name: tf_publisher
-    publish_tf_world: false
+    reference: base_link
+    publish_tf_world: true

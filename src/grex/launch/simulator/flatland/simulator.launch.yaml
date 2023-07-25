@@ -46,7 +46,7 @@ launch:
 
 - arg:
     name: "base_frame_id"
-    default: "base"
+    default: "base_link"
 
 - arg:
     name: "min_obstacle_height"
