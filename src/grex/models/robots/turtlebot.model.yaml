@@ -1,7 +1,7 @@
 # Turtlebot
 
 bodies:  # List of named bodies
-  - name: base_link # I changed from "base"
+  - name: base_footprint
     pose: [0, 0, 0] 
     type: dynamic  
     color: [1, 1, 1, 0.75] 
@@ -14,6 +14,23 @@ bodies:  # List of named bodies
 
       - type: polygon  # wheel
         sensor: true
+        points: [[-.06025, .2], [-.06025, .15], [.06025, .15], [.06025, .2]]
+        density: 1
+        layers: []
+  
+  - name: base_link # I changed from "base"
+    pose: [0, 0, 0] 
+    type: dynamic  
+    color: [1, 1, 1, 0.75] 
+    footprints:
+      - type: polygon  # wheel
+        sensor: false
+        points: [[-.06025, -.2], [-.06025, -.15], [.06025, -.15], [.06025, -.2]]
+        density: 1
+        layers: []
+
+      - type: polygon  # wheel
+        sensor: false
         points: [[-.06025, .2], [-.06025, .15], [.06025, .15], [.06025, .2]]
         density: 1
         layers: []
@@ -41,6 +58,13 @@ bodies:  # List of named bodies
 
 joints:
   - type: weld
+    name: base_footprint_weld
+    bodies: 
+      - name: base_footprint
+        anchor: [0, 0]
+      - name: base_link
+        anchor: [0, 0]
+  - type: weld
     name: laser_mount_weld
     bodies: 
       - name: base_scan
@@ -56,10 +80,10 @@ joints:
         anchor: [0, 0]
 
 plugins:
-  - type: DiffDrive 
+  - type: DiffDrive
     name: turtlebot_drive 
     body: base_link
-    odom_frame_id: odom
+    odom_frame_id: agent0/odom
     odom_pub: odom  # topic odom is published on
     pub_rate: 10
     twist_sub: agent0/cmd_vel # modularize
@@ -97,4 +121,5 @@ plugins:
   - type: ModelTfPublisher
     name: tf_publisher
     reference: base_link
-    publish_tf_world: true
+    publish_tf_world: false
+    world_frame_id: map
