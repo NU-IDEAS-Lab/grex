@@ -18,7 +18,7 @@ bodies:  # List of named bodies
         density: 1
         layers: []
   
-  - name: base_link # I changed from "base"
+  - name: base_link # changed from "base"
     pose: [0, 0, 0] 
     type: dynamic  
     color: [1, 1, 1, 0.75] 
@@ -83,7 +83,7 @@ plugins:
   - type: DiffDrive
     name: turtlebot_drive 
     body: base_link
-    odom_frame_id: agent0/odom
+    odom_frame_id: agent0/odom # modularize
     odom_pub: odom  # topic odom is published on
     pub_rate: 10
     twist_sub: agent0/cmd_vel # modularize
