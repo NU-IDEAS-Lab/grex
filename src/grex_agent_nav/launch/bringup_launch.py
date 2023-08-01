@@ -53,6 +53,7 @@ def generate_launch_description():
     use_composition = LaunchConfiguration('use_composition')
     use_respawn = LaunchConfiguration('use_respawn')
     log_level = LaunchConfiguration('log_level')
+    sim = LaunchConfiguration('sim')
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.
     # In case of the transforms (tf), currently, there doesn't seem to be a better alternative
@@ -69,27 +70,34 @@ def generate_launch_description():
         'use_sim_time': use_sim_time,
         'yaml_filename': map_yaml_file,
         'amcl.ros__parameters.base_frame_id': [LaunchConfiguration('namespace'), '/base_link'],
-        # 'amcl.ros__parameters.global_frame_id': [LaunchConfiguration('namespace'), '/map'],
         'amcl.ros__parameters.odom_frame_id': [LaunchConfiguration('namespace'), '/odom'],
-        # 'bt_navigator.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
         'bt_navigator.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
         'local_costmap.local_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
         'local_costmap.local_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
         'local_costmap.local_costmap.ros__parameters.voxel_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
-        # 'global_costmap.global_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/map'],
         'global_costmap.global_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
         'global_costmap.global_costmap.ros__parameters.obstacle_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
         'behavior_server.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
         'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
-        # 'map_server.ros__parameters.frame_id': [LaunchConfiguration('namespace'), '/map'],
         'smoother_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
     }
+
+    if LaunchConfiguration('sim') == 'gazebo':
+        param_substitutions['amcl.ros__parameters.global_frame_id'] = [LaunchConfiguration('namespace'), '/map']
+        param_substitutions['bt_navigator.ros__parameters.global_frame'] = [LaunchConfiguration('namespace'), '/map']
+        param_substitutions['global_costmap.global_costmap.ros__parameters.global_frame'] = [LaunchConfiguration('namespace'), '/map']
+        param_substitutions['map_server.ros__parameters.frame_id'] = [LaunchConfiguration('namespace'), '/map']
 
     configured_params = RewrittenYaml(
         source_file=params_file,
         root_key=namespace,
         param_rewrites=param_substitutions,
         convert_types=True)
+    
+    declare_sim = DeclareLaunchArgument(
+        'sim',
+        default_value='gazebo',
+        description='flatland or gazebo')
 
     stdout_linebuf_envvar = SetEnvironmentVariable(
         'RCUTILS_LOGGING_BUFFERED_STREAM', '1')
@@ -220,6 +228,7 @@ def generate_launch_description():
     ld.add_action(stdout_linebuf_envvar)
 
     # Declare the launch options
+    ld.add_action(declare_sim)
     ld.add_action(declare_namespace_cmd)
     ld.add_action(declare_use_namespace_cmd)
     ld.add_action(declare_slam_cmd)
