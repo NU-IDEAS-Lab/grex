@@ -25,9 +25,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 from launch.actions import (DeclareLaunchArgument, GroupAction,
-                            IncludeLaunchDescription, SetEnvironmentVariable)
+                            IncludeLaunchDescription, SetEnvironmentVariable, OpaqueFunction)
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
@@ -36,7 +36,107 @@ from launch_ros.actions import PushRosNamespace
 from launch_ros.actions import SetParameter
 from nav2_common.launch import RewrittenYaml
 
+def generate_bringup(context: LaunchContext, sim_subst, launch_dir):
+    sim = str(context.perform_substitution(sim_subst))
+    remappings = []
 
+    param_substitutions = {
+        'use_sim_time': LaunchConfiguration('use_sim_time'),
+        'yaml_filename': LaunchConfiguration('map'),
+        'amcl.ros__parameters.base_frame_id': [LaunchConfiguration('namespace'), '/base_link'],
+        'amcl.ros__parameters.odom_frame_id': [LaunchConfiguration('namespace'), '/odom'],
+        'bt_navigator.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'local_costmap.local_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
+        'local_costmap.local_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'local_costmap.local_costmap.ros__parameters.voxel_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
+        'global_costmap.global_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'global_costmap.global_costmap.ros__parameters.obstacle_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
+        'behavior_server.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
+        'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+        'smoother_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
+    }
+
+    if sim == 'gazebo':
+        param_substitutions['amcl.ros__parameters.global_frame_id'] = [LaunchConfiguration('namespace'), '/map']
+        param_substitutions['bt_navigator.ros__parameters.global_frame'] = [LaunchConfiguration('namespace'), '/map']
+        param_substitutions['global_costmap.global_costmap.ros__parameters.global_frame'] = [LaunchConfiguration('namespace'), '/map']
+        param_substitutions['map_server.ros__parameters.frame_id'] = [LaunchConfiguration('namespace'), '/map']
+   
+    configured_params = RewrittenYaml(
+        source_file=LaunchConfiguration('params_file'),
+        root_key=LaunchConfiguration('namespace'),
+        param_rewrites=param_substitutions,
+        convert_types=True)
+    
+    bringup_cmd_group = GroupAction([
+        PushRosNamespace(
+            condition=IfCondition(LaunchConfiguration('use_namespace')),
+            namespace=LaunchConfiguration('namespace')),
+
+        Node(
+            condition=IfCondition(LaunchConfiguration('use_composition')),
+            name='nav2_container',
+            package='rclcpp_components',
+            executable='component_container_isolated',
+            parameters=[configured_params, {'autostart': LaunchConfiguration('autostart')}],
+            arguments=['--ros-args', '--log-level', LaunchConfiguration('log_level')],
+            remappings=remappings,
+            output='screen'),
+
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'slam_launch.py')),
+            condition=IfCondition(LaunchConfiguration('slam')),
+            launch_arguments={'namespace': LaunchConfiguration('namespace'),
+                              'use_sim_time': LaunchConfiguration('use_sim_time'),
+                              'autostart': LaunchConfiguration('autostart'),
+                              'use_respawn': LaunchConfiguration('use_respawn'),
+                              'configured_params_file': configured_params}.items()),
+
+        GroupAction(
+            actions=[
+                # Set initial pose.
+                SetParameter(
+                    name="set_initial_pose",
+                    value=True
+                ),
+                SetParameter(
+                    name="initial_pose.x",
+                    value=LaunchConfiguration("pose_x")
+                ),
+                SetParameter(
+                    name="initial_pose.y",
+                    value=LaunchConfiguration("pose_y")
+                ),
+
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(os.path.join(launch_dir,
+                                                            'localization_launch.py')),
+                    condition=IfCondition(PythonExpression(['not ', LaunchConfiguration('slam')])),
+                    launch_arguments={'namespace': LaunchConfiguration('namespace'),
+                                    'map': LaunchConfiguration('map'),
+                                    'use_sim_time': LaunchConfiguration('use_sim_time'),
+                                    'autostart': LaunchConfiguration('autostart'),
+                                    'configured_params_file': configured_params,
+                                    'use_composition': LaunchConfiguration('use_composition'),
+                                    'use_respawn': LaunchConfiguration('use_respawn'),
+                                    'container_name': 'nav2_container'}.items()
+                ),
+            ]
+        ),
+
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'navigation_launch.py')),
+            launch_arguments={'namespace': LaunchConfiguration('namespace'),
+                              'use_sim_time': LaunchConfiguration('use_sim_time'),
+                              'autostart': LaunchConfiguration('autostart'),
+                              'configured_params_file': configured_params,
+                              'use_composition': LaunchConfiguration('use_composition'),
+                              'use_respawn': LaunchConfiguration('use_respawn'),
+                              'container_name': 'nav2_container'}.items()),
+    ])
+
+    return [bringup_cmd_group]
+    
 def generate_launch_description():
     # Get the launch directory
     bringup_dir = get_package_share_directory('grex_agent_nav')
@@ -66,33 +166,6 @@ def generate_launch_description():
     remappings = []
 
     # Create our own temporary YAML files that include substitutions
-    param_substitutions = {
-        'use_sim_time': use_sim_time,
-        'yaml_filename': map_yaml_file,
-        'amcl.ros__parameters.base_frame_id': [LaunchConfiguration('namespace'), '/base_link'],
-        'amcl.ros__parameters.odom_frame_id': [LaunchConfiguration('namespace'), '/odom'],
-        'bt_navigator.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
-        'local_costmap.local_costmap.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
-        'local_costmap.local_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
-        'local_costmap.local_costmap.ros__parameters.voxel_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
-        'global_costmap.global_costmap.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
-        'global_costmap.global_costmap.ros__parameters.obstacle_layer.scan.sensor_frame': [LaunchConfiguration('namespace'), '/base_scan'],
-        'behavior_server.ros__parameters.global_frame': [LaunchConfiguration('namespace'), '/odom'],
-        'behavior_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
-        'smoother_server.ros__parameters.robot_base_frame': [LaunchConfiguration('namespace'), '/base_link'],
-    }
-
-    if LaunchConfiguration('sim') == 'gazebo':
-        param_substitutions['amcl.ros__parameters.global_frame_id'] = [LaunchConfiguration('namespace'), '/map']
-        param_substitutions['bt_navigator.ros__parameters.global_frame'] = [LaunchConfiguration('namespace'), '/map']
-        param_substitutions['global_costmap.global_costmap.ros__parameters.global_frame'] = [LaunchConfiguration('namespace'), '/map']
-        param_substitutions['map_server.ros__parameters.frame_id'] = [LaunchConfiguration('namespace'), '/map']
-
-    configured_params = RewrittenYaml(
-        source_file=params_file,
-        root_key=namespace,
-        param_rewrites=param_substitutions,
-        convert_types=True)
     
     declare_sim = DeclareLaunchArgument(
         'sim',
@@ -154,72 +227,10 @@ def generate_launch_description():
             'pose_y', default_value='0.0')
 
     # Specify the actions
-    bringup_cmd_group = GroupAction([
-        PushRosNamespace(
-            condition=IfCondition(use_namespace),
-            namespace=namespace),
-
-        Node(
-            condition=IfCondition(use_composition),
-            name='nav2_container',
-            package='rclcpp_components',
-            executable='component_container_isolated',
-            parameters=[configured_params, {'autostart': autostart}],
-            arguments=['--ros-args', '--log-level', log_level],
-            remappings=remappings,
-            output='screen'),
-
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'slam_launch.py')),
-            condition=IfCondition(slam),
-            launch_arguments={'namespace': namespace,
-                              'use_sim_time': use_sim_time,
-                              'autostart': autostart,
-                              'use_respawn': use_respawn,
-                              'configured_params_file': configured_params}.items()),
-
-        GroupAction(
-            actions=[
-                # Set initial pose.
-                SetParameter(
-                    name="set_initial_pose",
-                    value=True
-                ),
-                SetParameter(
-                    name="initial_pose.x",
-                    value=LaunchConfiguration("pose_x")
-                ),
-                SetParameter(
-                    name="initial_pose.y",
-                    value=LaunchConfiguration("pose_y")
-                ),
-
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(os.path.join(launch_dir,
-                                                            'localization_launch.py')),
-                    condition=IfCondition(PythonExpression(['not ', slam])),
-                    launch_arguments={'namespace': namespace,
-                                    'map': map_yaml_file,
-                                    'use_sim_time': use_sim_time,
-                                    'autostart': autostart,
-                                    'configured_params_file': configured_params,
-                                    'use_composition': use_composition,
-                                    'use_respawn': use_respawn,
-                                    'container_name': 'nav2_container'}.items()
-                ),
-            ]
-        ),
-
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'navigation_launch.py')),
-            launch_arguments={'namespace': namespace,
-                              'use_sim_time': use_sim_time,
-                              'autostart': autostart,
-                              'configured_params_file': configured_params,
-                              'use_composition': use_composition,
-                              'use_respawn': use_respawn,
-                              'container_name': 'nav2_container'}.items()),
-    ])
+    bringup_cmd_group = OpaqueFunction(
+        function=generate_bringup,
+        args=[LaunchConfiguration('sim'), launch_dir]
+    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
