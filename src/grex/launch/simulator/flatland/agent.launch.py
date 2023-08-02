@@ -215,22 +215,24 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'initial_pos_theta', default_value='0.0'
         ),
-
-        DeclareLaunchArgument(
-            '_odom_frame_concat', default_value=[LaunchConfiguration('namespace'), '/odom']
-        ),
-
-        DeclareLaunchArgument(
-            'twist_sub_frame_concat', default_value=[LaunchConfiguration('namespace'), '/cmd_vel'],
-        ),
-        
-        DeclareLaunchArgument(
-            'topic_frame_concat', default_value=[LaunchConfiguration('namespace'), '/scan'],
-        ),
-
         DeclareLaunchArgument(
             'model_file', default_value=PathJoinSubstitution([FindPackageShare("grex"), "models/robots/turtlebot.model.yaml"])
         ),
+
+        # We don't expect these to be human-configured.
+        DeclareLaunchArgument(
+            '_odom_frame_concat', default_value=[LaunchConfiguration('namespace'), '/odom']
+        ),
+        DeclareLaunchArgument(
+            '_twist_sub_frame_concat', default_value=[LaunchConfiguration('namespace'), '/cmd_vel'],
+        ),
+        DeclareLaunchArgument(
+            '_topic_frame_concat', default_value=[LaunchConfiguration('namespace'), '/scan'],
+        ),
+        DeclareLaunchArgument(
+            '_map_frame_concat', default_value=[LaunchConfiguration('namespace'), '/map'],
+        ),
+
 
         DeclareLaunchArgument(
             'configured_model_file',
@@ -238,17 +240,24 @@ def generate_launch_description():
                 source_file=LaunchConfiguration('model_file'),
                 param_rewrites= {
                     'plugins.0.odom_frame_id': LaunchConfiguration('_odom_frame_concat'),
-                    'plugins.0.twist_sub': LaunchConfiguration('twist_sub_frame_concat'),
-                    'plugins.1.topic': LaunchConfiguration('topic_frame_concat'),
+                    'plugins.0.twist_sub': LaunchConfiguration('_twist_sub_frame_concat'),
+                    'plugins.1.topic': LaunchConfiguration('_topic_frame_concat'),
                 }
             )
         ),
 
+        # Add some dummy static transforms so that Flatland's TF tree structure is similar to Gazebo's.
         Node(
-            name='tf_map_to_odom',
+            name='tf_map_to_agentmap',
             package='tf2_ros',
             executable='static_transform_publisher',
-            arguments=['0', '0', '0', '0', '0', '0', 'map', LaunchConfiguration('_odom_frame_concat')],
+            arguments=['0', '0', '0', '0', '0', '0', 'map', LaunchConfiguration('_map_frame_concat')],
+        ),
+        Node(
+            name='tf_agentmap_to_agentodom',
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments=['0', '0', '0', '0', '0', '0', LaunchConfiguration('_map_frame_concat'), LaunchConfiguration('_odom_frame_concat')],
         ),
 
         ExecuteProcess(
