@@ -1,7 +1,7 @@
 from launch import LaunchDescription, LaunchContext
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
-from launch_ros.actions import PushRosNamespace, SetRemap
+from launch_ros.actions import PushRosNamespace, SetParameter, SetRemap
 
 from launch.actions import IncludeLaunchDescription
 from launch.actions import GroupAction, OpaqueFunction, SetEnvironmentVariable
@@ -131,6 +131,11 @@ def generate_launch_description():
             'agent_launch_file', default_value=[FindPackageShare("grex"), "/launch/agent/example/agent.launch.yaml"]
         ),
         
+        # Enable simulation time throughout Grex.
+        SetParameter(
+            name = "use_sim_time",
+            value = "True"
+        ),
 
         # Launch the management service node, which allows us to control the launch process via ROS service calls.
         LaunchManagementServiceNode(),
