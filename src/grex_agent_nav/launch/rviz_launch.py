@@ -71,7 +71,7 @@ def generate_launch_description():
         condition=IfCondition(use_namespace),
         package='rviz2',
         executable='rviz2',
-        namespace=namespace,
+        # namespace=namespace,
         arguments=['-d', namespaced_rviz_config_file],
         output='screen',
         remappings=[('/goal_pose', 'goal_pose'),

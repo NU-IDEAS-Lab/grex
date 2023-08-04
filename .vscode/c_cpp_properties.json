@@ -1,0 +1,30 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/gyaan/mas_simulation/install/launch_ros_manager/include/**",
+        "/home/gyaan/mas_simulation/install/flatland_rviz_plugins/include/**",
+        "/home/gyaan/mas_simulation/install/flatland_plugins/include/**",
+        "/home/gyaan/mas_simulation/install/flatland_server/include/**",
+        "/home/gyaan/mas_simulation/install/flatland_msgs/include/**",
+        "/home/gyaan/mas_simulation/install/flatland_box2d/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/gyaan/mas_simulation/src/flatland/flatland_box2d/include/**",
+        "/home/gyaan/mas_simulation/src/flatland/flatland_plugins/include/**",
+        "/home/gyaan/mas_simulation/src/flatland/flatland_rviz_plugins/include/**",
+        "/home/gyaan/mas_simulation/src/flatland/flatland_server/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

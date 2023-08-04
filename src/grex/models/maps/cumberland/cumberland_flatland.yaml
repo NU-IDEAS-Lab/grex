@@ -1,0 +1,12 @@
+properties:
+  velocity_iterations: 10 # default value
+  position_iterations: 10 # default value
+
+layers:
+  - name: "robot"
+  - name: "2d"
+    map: "cumberland.yaml"
+    color: [0, 1, 0, 1] # green
+  - name: "3d"
+    map: "cumberland.yaml"
+    color: [0, 1, 0, 0]

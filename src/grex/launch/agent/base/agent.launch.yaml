@@ -32,6 +32,9 @@ launch:
     name: "initial_pos_z"
     default: "0.0"
 - arg:
+    name: "initial_pos_theta"
+    default: "0.0"
+- arg:
     name: "use_nav2"
     default: "true"
 - arg:
@@ -74,6 +77,8 @@ launch:
           value: "$(var initial_pos_y)"
         - name: "initial_pos_z"
           value: "$(var initial_pos_z)"
+        - name: "initial_pos_theta"
+          value: "$(var initial_pos_theta)"
 
 # Run the robot state publisher.
 # TODO: Load URDF using the file_content substitution once that is available:
