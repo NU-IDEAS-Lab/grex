@@ -4,4 +4,4 @@
 	branch = humble
 [submodule "src/flatland"]
 	path = src/flatland
-	url = git@github.com:NU-IDEAS-Lab/flatland.git
+	url = ../flatland.git
