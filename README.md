@@ -39,13 +39,13 @@ Once prerequisites are installed, perform the following:
  1) Use Git to download the simulation environment repository.
 
     ```bash
-    git clone --recurse https://github.com/NU-IDEAS-Lab/grex.git
+    git clone --recurse https://github.com/NU-IDEAS-Lab/mas_simulation.git
     ```
     
- 2) Change to the `grex` folder:
+ 2) Change to the `mas_simulation` folder:
 
     ```bash
-    cd ./grex/
+    cd ./mas_simulation/
     ```
 
  3) Source the correct ROS 2 installation.
@@ -107,7 +107,7 @@ To operate the simulator, perform the following steps:
  1) Change to the `grex` root directory:
 
     ```
-    cd ./grex/
+    cd ./mas_simulation/
     ```
 
  2) Source the installed packages, plus the Gazebo simulator, and set environment variables.
