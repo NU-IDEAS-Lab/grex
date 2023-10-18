@@ -1,0 +1,13 @@
+launch:
+
+- arg:
+    name: "agent_count"
+    default: "1"
+
+
+# Launch Rviz.
+- include:
+    file: "$(find-pkg-share grex_agent_nav)/launch/rviz_launch.py"
+    arg:
+        - name: "rviz_config"
+          value: "$(find-pkg-share grex)/config/flatland.rviz"
