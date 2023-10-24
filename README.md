@@ -6,7 +6,7 @@ This environment allows for simulation of complex agents in a multi-agent system
 
 **Our goal is to make the following interchangeable:**
 
- * **Simulator:** Easily change between simulators, such as Gazebo or Stage. Use the same agents and environments in different simulators.
+ * **Simulator:** Easily change between simulators, such as Gazebo or Flatland. Use the same agents and environments in different simulators.
  * **Agents:** Define custom agents, from simple standalone ROS 2 nodes to complex agents involving tens of nodes and the myriad third-party packages offered by ROS.
  * **Networking:** We plan to integrate the NS-3 network simulator for realistic communication models and disturbances.
 
@@ -125,3 +125,14 @@ To operate the simulator, perform the following steps:
     ```
 
     * *Note: To view available launch arguments, add a* `-s` *flag to the end of the command.*
+
+
+# Available Simulators
+We currently support the following simulators with all agents:
+   * flatland (default simulator)
+   * gazebo
+
+To change the simulator, add the `sim:=SIM_NAME` to your launch command:
+```bash
+   ros2 launch grex simulation.launch.py sim:=gazebo
+```
