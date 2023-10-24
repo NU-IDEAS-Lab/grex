@@ -98,7 +98,7 @@ def generate_launch_description():
     return LaunchDescription([
         # Arguments.
         DeclareLaunchArgument(
-            'sim', default_value='gazebo'
+            'sim', default_value='flatland'
         ),
         DeclareLaunchArgument(
             'agent_count', default_value='1'
