@@ -69,7 +69,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /agent2/map_updates
+        Value: /agent0/map_updates
       Use Timestamp: false
       Value: true
     - Class: rviz_default_plugins/MarkerArray
@@ -88,7 +88,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: agent2/map
+    Fixed Frame: agent0/map
     Frame Rate: 30
   Name: root
   Tools:
@@ -106,7 +106,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /agent2/initialpose
+        Value: /agent0/initialpose
     - Class: nav2_rviz_plugins/GoalTool
   Transformation:
     Current:
