@@ -1,6 +1,6 @@
-# Grex Multi-Agent Environment
+# Grex Machina: Multi-Agent Framework for ROS 2
 
-This environment allows for simulation of complex agents in a multi-agent system (MAS). We use ROS 2 to allow for plug-and-play addition of new agent capabilities.
+This framework allows for simulation of complex agents in a multi-agent system (MAS). We use ROS 2 to allow for plug-and-play addition of new agent capabilities.
 
 <img width="600" alt="IDEAS MAS Framework Diagram" src="https://user-images.githubusercontent.com/1892393/232659638-5e71e73a-f2ef-44a0-92a9-b227886df2b7.png">
 
@@ -36,16 +36,16 @@ Installation is simple, but prerequisites must first be installed:
   
 Once prerequisites are installed, perform the following:
 
- 1) Use Git to download the simulation environment repository.
+ 1) Use Git to download the Grex framework repository.
 
     ```bash
-    git clone --recurse https://github.com/NU-IDEAS-Lab/mas_simulation.git
+    git clone --recurse https://github.com/NU-IDEAS-Lab/grex.git
     ```
     
- 2) Change to the `mas_simulation` folder:
+ 2) Change to the `grex` folder:
 
     ```bash
-    cd ./mas_simulation/
+    cd ./grex/
     ```
 
  3) Source the correct ROS 2 installation.
@@ -107,7 +107,7 @@ To operate the simulator, perform the following steps:
  1) Change to the `grex` root directory:
 
     ```
-    cd ./mas_simulation/
+    cd ./grex/
     ```
 
  2) Source the installed packages, plus the Gazebo simulator, and set environment variables.
