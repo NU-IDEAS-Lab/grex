@@ -72,9 +72,7 @@ launch:
     name: "move_base/global_costmap/obstacle_layer/scan/max_obstacle_height"
     default: "$(var max_obstacle_height)"
 
-# - include:
-#     file: "$(find-pkg-share grex)/launch/simulator/flatland/environment.launch.py"
-
+# Launch Flatland itself.
 - node:
     name: "flatland_server"
     pkg: "flatland_server"
@@ -100,47 +98,7 @@ launch:
         name: "use_sim_time"
         value: "$(var use_sim_time)"
 
-
-# - node:
-#     name: "map_server"
-#     pkg: "nav2_map_server"
-#     exec: "map_server"
-#     output: "screen"
-#     param:
-#     -
-#         name: "yaml_filename"
-#         value: "$(find-pkg-share grex)/models/maps/$(var map)/$(var map).yaml"
-#     -
-#         name: "frame_id"
-#         value: "$(var global_frame_id)"
-
-# - node:
-#     name: "lifecycle_manager_navigation"
-#     pkg: "nav2_lifecycle_manager"
-#     exec: "lifecycle_manager"
-#     output: "screen"
-#     param:
-#     - 
-#         name: "autostart"
-#         value: False
-#     -
-#         name: "node_names"
-#         value: ["map_server"]
-
-# - node:
-#     name: "tf"
-#     pkg: "tf2_ros"
-#     exec: "static_transform_publisher"
-#     args: "0 0 0 0 0 0 map odom"
-
-
-# - node:
-#     name: "rviz"
-#     pkg: "rviz2"
-#     exec: "rviz2"
-#     args: "-d $(find-pkg-share grex)/rviz/robot_navigation.rviz"
-#     param:
-#     -
-#         name: "use_sim_time"
-#         value: "$(var use_sim_time)"
-#     if: "$(var show_viz)"
+# Launch RViz.
+- include:
+    file: "$(find-pkg-share grex)/launch/simulator/flatland/visualization.launch.yaml"
+    unless: "$(var headless)"
