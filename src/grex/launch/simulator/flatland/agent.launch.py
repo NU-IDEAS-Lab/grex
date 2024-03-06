@@ -240,6 +240,7 @@ def generate_launch_description():
                 source_file=LaunchConfiguration('model_file'),
                 param_rewrites= {
                     'plugins.0.odom_frame_id': LaunchConfiguration('_odom_frame_concat'),
+                    'plugins.0.odom_pub': LaunchConfiguration('_odom_frame_concat'),
                     'plugins.0.twist_sub': LaunchConfiguration('_twist_sub_frame_concat'),
                     'plugins.1.topic': LaunchConfiguration('_topic_frame_concat'),
                 }
