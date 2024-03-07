@@ -79,7 +79,7 @@ Follow the steps below:
 
  3) Launch a container using `rocker`:
     ```bash
-    rocker --net=host --nvidia --x11 --user --home grex:sim
+    rocker --cuda --user --home --network=none grex:sim
     ```
 
  4) Change to the `grex` folder:
@@ -129,8 +129,8 @@ To operate the simulator, perform the following steps:
 
 # Available Simulators
 We currently support the following simulators with all agents:
-   * flatland (default simulator)
-   * gazebo
+   * [flatland](https://github.com/JoaoCostaIFG/flatland) (default simulator)
+   * [gazebo](https://gazebosim.org/)
 
 To change the simulator, add the `sim:=SIM_NAME` to your launch command:
 ```bash
