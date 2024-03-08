@@ -28,6 +28,9 @@ launch:
 - arg:
     name: "use_nav2"
     default: "true"
+- arg:
+    name: "params_file"
+    default: "$(find-pkg-share grex_agent_nav)/params/nav2_params.yaml"
 
 
 # Include the base agent.
@@ -58,7 +61,7 @@ launch:
             - name: "map"
               value: "$(var map_file)"
             - name: "params_file"
-              value: "$(find-pkg-share grex_agent_nav)/params/nav2_params.yaml"
+              value: "$(var params_file)"
             - name: "pose_x"
               value: "$(var initial_pos_x)"
             - name: "pose_y"
