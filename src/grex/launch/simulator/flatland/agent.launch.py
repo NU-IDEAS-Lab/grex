@@ -269,7 +269,7 @@ def generate_launch_description():
                 "/spawn_model ",
                 "flatland_msgs/srv/SpawnModel ",
                 "\"{yaml_path: '", LaunchConfiguration('configured_model_file'),
-                "', name: 'turtlebot_", LaunchConfiguration('id'), "', ns: ", LaunchConfiguration('namespace'), ", pose: ",
+                "', name: 'agent", LaunchConfiguration('id'), "', ns: ", LaunchConfiguration('namespace'), ", pose: ",
                 "{x: ",  LaunchConfiguration('initial_pos_x'), ", y: ", LaunchConfiguration('initial_pos_y'), ", theta: ", LaunchConfiguration('initial_pos_theta'), "}}\"", 
             ]],
             shell=True,
