@@ -13,16 +13,21 @@ launch:
 
 # Gazebo simulation server.
 - group:
-    - set_env:
-        name: "DISPLAY"
-        value: ":0"
+    # - set_env:
+    #     name: "DISPLAY"
+    #     value: ":0"
     - include:
-        file: "$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py"
+        file: "$(find-pkg-share ros_gz_sim)/launch/ros_gz_sim.launch.py"
         arg:
-            - name: "world"
+            - name: "world_sdf_file"
               value: "$(var gazebo_world_file)"
+            - name: "bridge_name"
+              value: "grex_gz_bridge"
+            - name: "use_composition"
+              value: "True"
 
-# Gazebo simulation client.
-- include:
-    file: "$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py"
-    unless: "$(var headless)"
+
+# # Gazebo simulation client.
+# - include:
+#     file: "$(find-pkg-share ros_gz_sim)/launch/gz_client.launch.py"
+#     unless: "$(var headless)"
