@@ -224,12 +224,6 @@ def generate_launch_description():
             '_odom_frame_concat', default_value=[LaunchConfiguration('namespace'), '/odom']
         ),
         DeclareLaunchArgument(
-            '_twist_sub_frame_concat', default_value=[LaunchConfiguration('namespace'), '/cmd_vel'],
-        ),
-        DeclareLaunchArgument(
-            '_topic_frame_concat', default_value=[LaunchConfiguration('namespace'), '/scan'],
-        ),
-        DeclareLaunchArgument(
             '_map_frame_concat', default_value=[LaunchConfiguration('namespace'), '/map'],
         ),
 
@@ -240,9 +234,9 @@ def generate_launch_description():
                 source_file=LaunchConfiguration('model_file'),
                 param_rewrites= {
                     'plugins.0.odom_frame_id': LaunchConfiguration('_odom_frame_concat'),
-                    'plugins.0.odom_pub': LaunchConfiguration('_odom_frame_concat'),
-                    'plugins.0.twist_sub': LaunchConfiguration('_twist_sub_frame_concat'),
-                    'plugins.1.topic': LaunchConfiguration('_topic_frame_concat'),
+                    'plugins.0.odom_pub': 'odom',
+                    'plugins.0.twist_sub': 'cmd_vel',
+                    'plugins.1.topic': 'scan',
                 }
             )
         ),
