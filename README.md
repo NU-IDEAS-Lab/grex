@@ -39,13 +39,13 @@ Once prerequisites are installed, perform the following:
  1) Use Git to download the Grex framework repository.
 
     ```bash
-    git clone --recurse https://github.com/NU-IDEAS-Lab/grex.git
+    git clone --recurse https://github.com/NU-IDEAS-Lab/grex_dev.git
     ```
     
  2) Change to the `grex` folder:
 
     ```bash
-    cd ./grex/
+    cd ./grex_dev/
     ```
 
  3) Source the correct ROS 2 installation.
