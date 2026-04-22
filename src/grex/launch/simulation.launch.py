@@ -134,7 +134,7 @@ def generate_launch_description():
         # Enable simulation time throughout Grex.
         SetParameter(
             name = "use_sim_time",
-            value = "True"
+            value = True
         ),
 
         # Launch the management service node, which allows us to control the launch process via ROS service calls.

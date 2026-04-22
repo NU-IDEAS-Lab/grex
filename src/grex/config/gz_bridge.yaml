@@ -1,0 +1,17 @@
+# Bridge configuration for the Gazebo simulation world (grex_gz_bridge).
+# This bridges world-level topics between Gazebo and ROS 2.
+# Per-robot topics are bridged separately via gz_waffle_bridge.yaml.
+
+# gz topic published by the simulator core
+- ros_topic_name: "clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+# gz topic published by DiffDrive plugin (global /tf topic; bridged once for all robots)
+- ros_topic_name: "/tf"
+  gz_topic_name: "/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
