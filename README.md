@@ -2,7 +2,8 @@
 
 This framework allows for simulation of complex agents in a multi-agent system (MAS). We use ROS 2 to allow for plug-and-play addition of new agent capabilities.
 
-<img width="600" alt="IDEAS MAS Framework Diagram" src="https://user-images.githubusercontent.com/1892393/232659638-5e71e73a-f2ef-44a0-92a9-b227886df2b7.png">
+<img width="600" alt="Grex Framework Diagram" src="https://github.com/user-attachments/assets/db8925a1-08fb-4f7d-af96-dfe0b2bd4ef7" />
+
 
 **Our goal is to make the following interchangeable:**
 
