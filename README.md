@@ -18,7 +18,7 @@ Please reach out to Anthony Goeckner \<anthony.goeckner@northwestern.edu\> with 
 
 Installation is simple, but prerequisites must first be installed:
 
- * ROS 2: Follow the official instructions [here](https://docs.ros.org/en/jazzy/Installation.html) to install **ROS 2 Humble** to your system. Use the **desktop-full** variant, which includes the Gazebo simulator.
+ * ROS 2: Follow the official instructions [here](https://docs.ros.org/en/jazzy/Installation.html) to install **ROS 2 Jazzy** to your system. Use the **desktop-full** variant, which includes the Gazebo simulator.
 
    * Install the `Eclipse Cyclone DDS` middleware for ROS. We use this because the default middleware currently causes [problems](https://github.com/ros2/ros2/issues/1253) in our application.
      ```bash
