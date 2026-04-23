@@ -198,7 +198,7 @@ flowchart LR
     sim[simulation.launch.py]
     gzsim[simulator/gazebo/simulator.launch.yaml]
     flsim[simulator/flatland/simulator.launch.yaml]
-    exagent[agent/example/agent.launch.yaml\n(default agent_launch_file)]
+    exagent[agent/example/agent.launch.yaml - default agent_launch_file]
     baseagent[agent/base/agent.launch.yaml]
     gzagent[simulator/gazebo/agent.launch.yaml]
     flagent[simulator/flatland/agent.launch.py]
@@ -224,20 +224,4 @@ flowchart LR
     bringup -->|if slam==False| loc
     bringup -->|if slam==True| slam
     bringup --> nav
-```
-
-### `grex_agent_nav` internal launch hierarchy
-
-```mermaid
-flowchart TD
-    b[bringup_launch.py]
-    l[localization_launch.py]
-    s[slam_launch.py]
-    n[navigation_launch.py]
-    r[rviz_launch.py]
-
-    b -->|non-SLAM path| l
-    b -->|SLAM path| s
-    b -->|always| n
-    r -.->|optional visualization for agent workflows| b
 ```
