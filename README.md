@@ -2,7 +2,8 @@
 
 This framework allows for simulation of complex agents in a multi-agent system (MAS). We use ROS 2 to allow for plug-and-play addition of new agent capabilities.
 
-<img width="600" alt="IDEAS MAS Framework Diagram" src="https://user-images.githubusercontent.com/1892393/232659638-5e71e73a-f2ef-44a0-92a9-b227886df2b7.png">
+<img width="600" alt="Grex Framework Diagram" src="https://github.com/user-attachments/assets/db8925a1-08fb-4f7d-af96-dfe0b2bd4ef7" />
+
 
 **Our goal is to make the following interchangeable:**
 
@@ -18,17 +19,17 @@ Please reach out to Anthony Goeckner \<anthony.goeckner@northwestern.edu\> with 
 
 Installation is simple, but prerequisites must first be installed:
 
- * ROS 2: Follow the official instructions [here](https://docs.ros.org/en/humble/Installation.html) to install **ROS 2 Humble** to your system. Use the **desktop-full** variant, which includes the Gazebo simulator.
+ * ROS 2: Follow the official instructions [here](https://docs.ros.org/en/jazzy/Installation.html) to install **ROS 2 Jazzy** to your system. Use the **desktop-full** variant, which includes the Gazebo simulator.
 
    * Install the `Eclipse Cyclone DDS` middleware for ROS. We use this because the default middleware currently causes [problems](https://github.com/ros2/ros2/issues/1253) in our application.
      ```bash
-     apt install ros-humble-rmw-cyclonedds-cpp
+     apt install ros-jazzy-rmw-cyclonedds-cpp
      ```
      The above will install Cyclone DDS for Ubuntu. Adapt as needed for your system.
 
    * Install other ROS 2 packages.
      ```bash
-     apt install ros-dev-tools ros-humble-turtlebot3* ros-humble-navigation2*
+     apt install ros-dev-tools ros-jazzy-turtlebot3* ros-jazzy-navigation2*
      ```
      Adapt as needed for your system.
 
@@ -51,7 +52,7 @@ Once prerequisites are installed, perform the following:
  3) Source the correct ROS 2 installation.
    
     ```bash
-    source /opt/ros/humble/setup.bash
+    source /opt/ros/jazzy/setup.bash
     ```
     
  4) Build the simulation environment using Colcon, the ROS 2 build system.
@@ -91,7 +92,7 @@ Follow the steps below:
  5) Source the correct ROS 2 installation.
    
     ```bash
-    source /opt/ros/humble/setup.bash
+    source /opt/ros/jazzy/setup.bash
     ```
     
  6) Build the simulation environment using Colcon, the ROS 2 build system.

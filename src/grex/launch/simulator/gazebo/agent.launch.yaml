@@ -24,7 +24,45 @@ launch:
     default: "0.0"
 
 # Spawn the robot in Gazebo.
+- include:
+    file: "$(find-pkg-share ros_gz_sim)/launch/gz_spawn_model.launch.py"
+    arg:
+        - name: "file"
+          value: "$(var urdf_path)"
+        # - name: "bridge_name"
+        #   value: "grex_gz_bridge"
+        # - name: "use_composition"
+        #   value: "True"
+        - name: "entity_name"
+          value: "$(var namespace)"
+        - name: "namespace"
+          value: "$(var namespace)"
+        - name: "x"
+          value: "$(var initial_pos_x)"
+        - name: "y"
+          value: "$(var initial_pos_y)"
+        - name: "z"
+          value: "$(var initial_pos_z)"
+
+# Bridge Gazebo topics to ROS 2 for this robot.
 - node:
-    pkg: "gazebo_ros"
-    exec: "spawn_entity.py"
-    args: "-entity $(var namespace) -file $(var urdf_path) -robot_namespace $(var namespace) -timeout 500.0 -x $(var initial_pos_x) -y $(var initial_pos_y) -z $(var initial_pos_z) -b"
+    pkg: "ros_gz_bridge"
+    exec: "parameter_bridge"
+    name: "$(var namespace)_gz_bridge"
+    param:
+        - name: "config_file"
+          value: "$(find-pkg-share grex)/config/gz_waffle_bridge.yaml"
+    output: "screen"
+
+# Bridge camera images for this robot (uses the more efficient ros_gz_image bridge).
+- node:
+    pkg: "ros_gz_image"
+    exec: "image_bridge"
+    name: "$(var namespace)_gz_image_bridge"
+    args: "camera/image_raw"
+    output: "screen"
+
+# - node:
+#     pkg: "gazebo_ros"
+#     exec: "spawn_entity.py"
+#     args: "-entity $(var namespace) -file $(var urdf_path) -robot_namespace $(var namespace) -timeout 500.0 -x $(var initial_pos_x) -y $(var initial_pos_y) -z $(var initial_pos_z) -b"
