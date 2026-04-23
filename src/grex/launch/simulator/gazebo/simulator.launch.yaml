@@ -13,16 +13,32 @@ launch:
 
 # Gazebo simulation server.
 - group:
+    # - set_env:
+    #     name: "DISPLAY"
+    #     value: ":0"
+    # Allow Gazebo to find models in the grex package (e.g. map mesh URIs using model://).
     - set_env:
-        name: "DISPLAY"
-        value: ":0"
+        name: "GZ_SIM_RESOURCE_PATH"
+        value: "$(find-pkg-share grex)/models"
     - include:
-        file: "$(find-pkg-share gazebo_ros)/launch/gzserver.launch.py"
+        file: "$(find-pkg-share ros_gz_sim)/launch/ros_gz_sim.launch.py"
         arg:
-            - name: "world"
+            - name: "world_sdf_file"
               value: "$(var gazebo_world_file)"
+            - name: "bridge_name"
+              value: "grex_gz_bridge"
+            - name: "config_file"
+              value: "$(find-pkg-share grex)/config/gz_bridge.yaml"
+            - name: "use_composition"
+              value: "True"
+            - name: "create_own_container"
+              value: "True"
 
-# Gazebo simulation client.
+
+# Gazebo GUI client (skipped when headless=true).
 - include:
-    file: "$(find-pkg-share gazebo_ros)/launch/gzclient.launch.py"
+    file: "$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py"
+    arg:
+        - name: "gz_args"
+          value: "-g"
     unless: "$(var headless)"
