@@ -189,7 +189,7 @@ ros2 launch grex simulation.launch.py -s
 
 Grex uses `src/grex_agent_nav/launch/bringup_launch.py` as its Nav2 entrypoint from the example agent launch. The other `grex_agent_nav` launch files (`localization_launch.py`, `navigation_launch.py`, `slam_launch.py`, `rviz_launch.py`) are internal pieces composed by that bringup flow.
 
-## 5) Launch flow / hierarchy (Mermaid)
+## 5) Launch File Flow
 
 ### Main simulation launch hierarchy
 
