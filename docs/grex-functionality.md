@@ -2,7 +2,23 @@
 
 This document summarizes the functionality currently available in this repository and the launch system that powers it.
 
-## 1) Functionality Overview
+## 1) Usage examples (quick start)
+
+```bash
+# Default simulation (flatland, one agent)
+ros2 launch grex simulation.launch.py
+
+# Three agents on Gazebo
+ros2 launch grex simulation.launch.py sim:=gazebo agent_count:=3
+
+# Headless Gazebo
+ros2 launch grex simulation.launch.py sim:=gazebo headless:=true
+
+# Show launch arguments for top-level simulation launcher
+ros2 launch grex simulation.launch.py -s
+```
+
+## 2) Functionality overview
 
 ### User-facing functionality
 
@@ -13,7 +29,7 @@ This document summarizes the functionality currently available in this repositor
 - **Spawn one or more agents** with configurable start positions.
 - **Load a map/world** from `src/grex/models/maps/<map_name>/`.
 - **Optional RViz visualization** at both simulator and per-agent levels.
-- **Navigation stack integration** (Nav2) through `grex_agent_nav` launch files.
+- **Navigation stack integration** (Nav2) through `grex_agent_nav`.
 - **Optional SLAM path** for Nav2 bringup.
 
 ### Developer-facing functionality
@@ -26,14 +42,8 @@ This document summarizes the functionality currently available in this repositor
 - **Launch process management service**:
   - `launch_ros_manager_py.actions.LaunchManagementServiceNode` adds a service at
     `/<node_name>/shutdown_namespace` to request shutdown of nodes in a target ROS namespace.
-- **Reusable Nav2 bringup package (`grex_agent_nav`)** with dedicated launch files for:
-  - full bringup
-  - localization
-  - navigation
-  - SLAM
-  - RViz
 
-## 2) Simulator Descriptions
+## 3) Simulator descriptions
 
 ### Flatland (`sim:=flatland`)
 
@@ -57,7 +67,7 @@ This document summarizes the functionality currently available in this repositor
   - `ros_gz_image` for camera image bridge
 - Supports headless mode by skipping GUI include when `headless:=true`.
 
-## 3) Launch Arguments Reference
+## 4) Launch arguments reference
 
 > Defaults below reflect current source values.
 
@@ -175,145 +185,59 @@ This document summarizes the functionality currently available in this repositor
 | `_map_frame_concat` | `$(var namespace)/map` | Internal helper argument for TF helper transforms. |
 | `configured_model_file` | `RewrittenYaml(...)` | Generated temporary model file with namespace/topic rewrites. |
 
-### `src/grex_agent_nav/launch/bringup_launch.py`
+### `grex_agent_nav` (high-level note)
 
-| Argument | Default | Purpose |
-|---|---|---|
-| `namespace` | `` | Top-level namespace. |
-| `use_namespace` | `false` | Apply namespace to nav stack if true. |
-| `slam` | `False` | Select SLAM path instead of localization path. |
-| `map` | *(required, no default)* | Full path to map yaml. |
-| `use_sim_time` | `false` | Use simulation clock. |
-| `params_file` | `.../params/nav2_params.yaml` | Nav2 params file. |
-| `autostart` | `true` | Automatically start Nav2 managed nodes. |
-| `use_composition` | `True` | Use composed bringup container. |
-| `use_respawn` | `False` | Respawn non-composed nodes on crash. |
-| `log_level` | `info` | ROS log level. |
-| `pose_x` | `0.0` | Initial localization X. |
-| `pose_y` | `0.0` | Initial localization Y. |
+Grex uses `src/grex_agent_nav/launch/bringup_launch.py` as its Nav2 entrypoint from the example agent launch. The other `grex_agent_nav` launch files (`localization_launch.py`, `navigation_launch.py`, `slam_launch.py`, `rviz_launch.py`) are internal pieces composed by that bringup flow.
 
-### `src/grex_agent_nav/launch/navigation_launch.py`
-
-| Argument | Default | Purpose |
-|---|---|---|
-| `namespace` | `` | Top-level namespace. |
-| `use_sim_time` | `false` | Use simulation clock. |
-| `params_file` | `.../params/nav2_params.yaml` | Nav2 params file. |
-| `autostart` | `true` | Automatically startup navigation lifecycle nodes. |
-| `use_composition` | `False` | Load composable nodes if true. |
-| `container_name` | `nav2_container` | Target composition container name. |
-| `use_respawn` | `False` | Respawn non-composed nodes on crash. |
-| `log_level` | `info` | ROS log level. |
-| `configured_params_file` | `RewrittenYaml(...)` | Generated robot-specific params file. |
-
-### `src/grex_agent_nav/launch/localization_launch.py`
-
-| Argument | Default | Purpose |
-|---|---|---|
-| `namespace` | `` | Top-level namespace. |
-| `map` | *(required, no default)* | Full path to map yaml. |
-| `use_sim_time` | `false` | Use simulation clock. |
-| `params_file` | `.../params/nav2_params.yaml` | Nav2 params file. |
-| `autostart` | `true` | Automatically startup localization lifecycle nodes. |
-| `use_composition` | `False` | Load composable nodes if true. |
-| `container_name` | `nav2_container` | Target composition container name. |
-| `use_respawn` | `False` | Respawn non-composed nodes on crash. |
-| `log_level` | `info` | ROS log level. |
-| `configured_params_file` | `RewrittenYaml(...)` | Generated robot-specific params file. |
-
-### `src/grex_agent_nav/launch/slam_launch.py`
-
-| Argument | Default | Purpose |
-|---|---|---|
-| `namespace` | `` | Top-level namespace. |
-| `params_file` | `.../params/nav2_params.yaml` | Nav2 params file. |
-| `use_sim_time` | `True` | Use simulation clock. |
-| `autostart` | `True` | Automatically startup SLAM lifecycle nodes. |
-| `use_respawn` | `False` | Respawn map saver if it crashes. |
-| `log_level` | `info` | ROS log level. |
-| `configured_params_file` | `RewrittenYaml(...)` | Generated robot-specific params file. |
-
-### `src/grex_agent_nav/launch/rviz_launch.py`
-
-| Argument | Default | Purpose |
-|---|---|---|
-| `namespace` | `navigation` | Namespace used for config substitutions/remapping mode. |
-| `use_namespace` | `false` | Whether RViz config substitutions for namespaced topics are applied. |
-| `rviz_config` | `.../rviz/nav2_default_view.rviz` | RViz configuration file path. |
-
-## 4) Launch Flow / Hierarchy (PlantUML)
+## 5) Launch flow / hierarchy (Mermaid)
 
 ### Main simulation launch hierarchy
 
-```plantuml
-@startuml
-skinparam monochrome true
-left to right direction
+```mermaid
+flowchart LR
+    sim[simulation.launch.py]
+    gzsim[simulator/gazebo/simulator.launch.yaml]
+    flsim[simulator/flatland/simulator.launch.yaml]
+    exagent[agent/example/agent.launch.yaml\n(default agent_launch_file)]
+    baseagent[agent/base/agent.launch.yaml]
+    gzagent[simulator/gazebo/agent.launch.yaml]
+    flagent[simulator/flatland/agent.launch.py]
+    flviz[simulator/flatland/visualization.launch.yaml]
+    rviz[grex_agent_nav/launch/rviz_launch.py]
+    bringup[grex_agent_nav/launch/bringup_launch.py]
+    loc[grex_agent_nav/launch/localization_launch.py]
+    slam[grex_agent_nav/launch/slam_launch.py]
+    nav[grex_agent_nav/launch/navigation_launch.py]
 
-node "simulation.launch.py" as sim
-node "simulator/gazebo/simulator.launch.yaml" as gzsim
-node "simulator/flatland/simulator.launch.yaml" as flsim
-node "agent/example/agent.launch.yaml\n(default agent_launch_file)" as exagent
-node "agent/base/agent.launch.yaml" as baseagent
-node "simulator/gazebo/agent.launch.yaml" as gzagent
-node "simulator/flatland/agent.launch.py" as flagent
-node "simulator/flatland/visualization.launch.yaml" as flviz
-node "grex_agent_nav/launch/rviz_launch.py" as rviz
-node "grex_agent_nav/launch/bringup_launch.py" as bringup
-node "grex_agent_nav/launch/localization_launch.py" as loc
-node "grex_agent_nav/launch/slam_launch.py" as slam
-node "grex_agent_nav/launch/navigation_launch.py" as nav
+    sim -->|if sim==gazebo| gzsim
+    sim -->|if sim==flatland| flsim
+    sim -->|per agent| exagent
 
-sim --> gzsim : if sim==gazebo
-sim --> flsim : if sim==flatland
-sim --> exagent : per agent
+    exagent --> baseagent
+    baseagent -->|default simulator_agent_integration_launch_file| gzagent
+    baseagent -->|when sim==flatland| flagent
+    flsim --> flviz
+    flviz --> rviz
 
-exagent --> baseagent
-baseagent --> gzagent : default simulator_agent_integration_launch_file
-baseagent --> flagent : when sim==flatland
-flsim --> flviz
-flviz --> rviz
-
-baseagent --> rviz : if use_rviz
-exagent --> bringup : if use_nav2
-bringup --> loc : if slam==False
-bringup --> slam : if slam==True
-bringup --> nav
-@enduml
+    baseagent -->|if use_rviz| rviz
+    exagent -->|if use_nav2| bringup
+    bringup -->|if slam==False| loc
+    bringup -->|if slam==True| slam
+    bringup --> nav
 ```
 
 ### `grex_agent_nav` internal launch hierarchy
 
-```plantuml
-@startuml
-skinparam monochrome true
-top to bottom direction
+```mermaid
+flowchart TD
+    b[bringup_launch.py]
+    l[localization_launch.py]
+    s[slam_launch.py]
+    n[navigation_launch.py]
+    r[rviz_launch.py]
 
-node "bringup_launch.py" as b
-node "localization_launch.py" as l
-node "slam_launch.py" as s
-node "navigation_launch.py" as n
-node "rviz_launch.py" as r
-
-b --> l : non-SLAM path
-b --> s : SLAM path
-b --> n : always
-r ..> b : optional visualization for agent workflows
-@enduml
-```
-
-## 5) Common user command examples
-
-```bash
-# Default simulation (flatland, one agent)
-ros2 launch grex simulation.launch.py
-
-# Three agents on Gazebo
-ros2 launch grex simulation.launch.py sim:=gazebo agent_count:=3
-
-# Headless Gazebo
-ros2 launch grex simulation.launch.py sim:=gazebo headless:=true
-
-# Show launch arguments for top-level simulation launcher
-ros2 launch grex simulation.launch.py -s
+    b -->|non-SLAM path| l
+    b -->|SLAM path| s
+    b -->|always| n
+    r -.->|optional visualization for agent workflows| b
 ```
