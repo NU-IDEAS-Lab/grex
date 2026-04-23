@@ -1,0 +1,56 @@
+# Bridge configuration for a single waffle robot instance.
+# This file is loaded by a per-robot parameter_bridge node launched from
+# agent.launch.yaml (simulator/gazebo), which runs under the robot's ROS
+# namespace (e.g. /agent0).  All relative ros_topic_name values are therefore
+# resolved to /<namespace>/<topic> automatically.
+#
+# The gz_topic_name values must match what the new Gazebo plugins publish.
+# When the waffle model SDF is migrated to gz-sim-* plugins, set the <topic>
+# tags in the SDF to include the robot namespace prefix (e.g. agent0/cmd_vel)
+# so that each robot uses unique Gazebo topics and these names stay in sync.
+#
+# NOTE: /tf is bridged at the world level (gz_bridge.yaml) since all robots
+# share a single global /tf Gazebo topic.
+
+# gz topic published by JointStatePublisher plugin
+- ros_topic_name: "joint_states"
+  gz_topic_name: "joint_states"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: GZ_TO_ROS
+
+# gz topic published by DiffDrive plugin
+- ros_topic_name: "odom"
+  gz_topic_name: "odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+# gz topic subscribed to by DiffDrive plugin
+- ros_topic_name: "cmd_vel"
+  gz_topic_name: "cmd_vel"
+  ros_type_name: "geometry_msgs/msg/TwistStamped"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+# gz topic published by IMU plugin
+- ros_topic_name: "imu"
+  gz_topic_name: "imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+# gz topic published by Sensors plugin (LiDAR)
+- ros_topic_name: "scan"
+  gz_topic_name: "scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+# gz topic published by Sensors plugin (Camera)
+# Note: camera/image_raw is bridged separately via ros_gz_image's image_bridge.
+- ros_topic_name: "camera/camera_info"
+  gz_topic_name: "camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
